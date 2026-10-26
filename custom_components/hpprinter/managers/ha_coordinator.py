@@ -7,6 +7,7 @@ from homeassistant.helpers.dispatcher import (
     async_dispatcher_send,
 )
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import slugify
 
@@ -109,6 +110,12 @@ class HACoordinator(DataUpdateCoordinator):
             )
         )
 
+    def _parent_device_id(self, identifier: tuple[str, str]) -> str | None:
+        """Resolve an existing parent device to its registry ID."""
+        registry = dr.async_get(self.hass)
+        parent = registry.async_get_device(identifiers={identifier})
+        return parent.id if parent else None
+
     def create_main_device(
         self, device_key: str, device_data: dict, device_config: dict
     ):
@@ -166,7 +173,7 @@ class HACoordinator(DataUpdateCoordinator):
                 model=model,
                 serial_number=serial_number,
                 manufacturer=manufacturer,
-                via_device=(DOMAIN, self._main_device_id),
+                via_device_id=self._parent_device_id((DOMAIN, self._main_device_id)),
             )
 
             self._devices[device_key] = device_info
@@ -223,7 +230,7 @@ class HACoordinator(DataUpdateCoordinator):
                 model=model,
                 serial_number=serial_number,
                 manufacturer=manufacturer,
-                via_device=(DOMAIN, printer_device_unique_id),
+                via_device_id=self._parent_device_id((DOMAIN, printer_device_unique_id)),
             )
 
             self._devices[device_key] = device_info
@@ -266,7 +273,7 @@ class HACoordinator(DataUpdateCoordinator):
                 model=model,
                 serial_number=serial_number,
                 manufacturer=manufacturer,
-                via_device=(DOMAIN, self._main_device_id),
+                via_device_id=self._parent_device_id((DOMAIN, self._main_device_id)),
             )
 
             self._devices[device_key] = device_info
