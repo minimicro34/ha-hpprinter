@@ -360,6 +360,12 @@ class RestAPIv2:
                 data_item = self._raw_data.get(endpoint)
 
                 data = self._get_data_section(data_item, path)
+                if data_point.get("name") == "Status" and isinstance(data, dict):
+                    data = dict(data)
+                    if self._last_successful_update is not None:
+                        data["LastSuccessfulUpdate"] = datetime.fromtimestamp(
+                            self._last_successful_update
+                        ).astimezone().isoformat()
 
                 if properties is not None:
                     if isinstance(data, list):
