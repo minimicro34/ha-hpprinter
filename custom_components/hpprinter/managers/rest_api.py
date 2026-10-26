@@ -215,13 +215,16 @@ class RestAPIv2:
                         update_counter += 1
 
             if self._cache_dirty and self._cache_store is not None:
-                await self._cache_store.async_save({
-                    "endpoints": {
-                        key: value for key, value in self._raw_data.items()
-                        if key != PRODUCT_STATUS_ENDPOINT and value is not None
-                    },
-                    "last_successful_update": self._last_successful_update,
-                })
+                await self._cache_store.async_save(
+                    {
+                        "endpoints": {
+                            key: value
+                            for key, value in self._raw_data.items()
+                            if key != PRODUCT_STATUS_ENDPOINT and value is not None
+                        },
+                        "last_successful_update": self._last_successful_update,
+                    }
+                )
                 self._cache_dirty = False
 
             if update_counter > 0 or (self._raw_data and not self._data):
