@@ -1,7 +1,7 @@
 import voluptuous as vol
-from voluptuous import Schema
 
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SSL
+from voluptuous import Schema
 
 from ..common.consts import DEFAULT_PORT, PROTOCOLS
 
