@@ -255,34 +255,35 @@
   {
     "name": "PrintQuality",
     "endpoint": "/DevMgmt/ProductUsageDyn.xml",
-    "path": "ProductUsageDyn.PrinterSubunit.UsageByMediaType",
+    "path": "ProductUsageDyn",
     "device_type": "Printer",
     "filter": {
       "MediaType": "plain"
     },
     "properties": {
       "normal_impressions": {
-        "path": "UsageByQuality.NormalImpressions.#text",
+        "path": "UsageByQuality.NormalImpressions",
         "platform": "sensor",
         "unit_of_measurement": "pages",
         "state_class": "total_increasing",
         "icon": "mdi:printer"
       },
       "draft_impressions": {
-        "path": "UsageByQuality.DraftImpressions.#text",
+        "path": "UsageByQuality.DraftImpressions",
         "platform": "sensor",
         "unit_of_measurement": "pages",
         "state_class": "total_increasing",
         "icon": "mdi:printer"
       },
       "better_impressions": {
-        "path": "UsageByQuality.BetterImpressions.#text",
+        "path": "UsageByQuality.BetterImpressions",
         "platform": "sensor",
         "unit_of_measurement": "pages",
         "state_class": "total_increasing",
         "icon": "mdi:printer"
       }
-    }
+    },
+    "recursive_media_type": true
   },
   {
     "name": "Scanner",
