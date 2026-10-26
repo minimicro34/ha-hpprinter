@@ -4,7 +4,7 @@
 
 This repository is maintained by [@minimicro34](https://github.com/minimicro34), based on the original HP Printer integration by [@elad-bar](https://github.com/elad-bar/ha-hpprinter). Thanks to the original author and contributors for their work.
 
-The v3.0.0 compatibility update is **in development and not yet released**. It targets recent Home Assistant versions and still requires validation on real hardware.
+Version 3.0.1 has been released and validated on HP ENVY 4500. Version 3.0.2 is in development, adding a bundled Lovelace card, a last-successful-sync sensor and regression tests; hardware validation is pending.
 
 ### Contributing
 
