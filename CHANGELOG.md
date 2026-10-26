@@ -5,10 +5,11 @@
 ### Fixed
 - Replace deprecated device registry lookup with `async_get_device_by_identifier`, scoped to the current config entry.
 - Keep the last successful non-status endpoint response when a polling request fails, instead of clearing cached counters and consumable readings.
+- Persist successful non-status endpoint responses in Home Assistant storage and restore them at startup, including when the printer is offline.
 
 ### Compatibility and testing
 - Preserve existing device identifiers and entity unique IDs.
-- Offline state restoration across Home Assistant restarts and last-successful-update metadata are not yet implemented.
+- Restored values are last-known readings, not proof that the printer is currently reachable. The timestamp is stored internally; a dedicated last-sync entity is not yet exposed.
 - Pending validation on HP ENVY 4500 and Ruff, hassfest, and HACS checks. Do not publish before validation.
 
 ## 3.0.0 — Released
