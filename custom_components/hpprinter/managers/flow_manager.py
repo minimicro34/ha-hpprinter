@@ -1,8 +1,8 @@
 """Config flow to configure."""
 from __future__ import annotations
 
-from copy import copy
 import logging
+from copy import copy
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -88,7 +88,7 @@ class IntegrationFlowManager:
 
                     _LOGGER.warning("Failed to setup integration")
 
-            except Exception as ex:
+            except Exception as ex:  # noqa: BLE001 - report device or API failures
                 form_errors = {"base": "error_400"}
 
                 _LOGGER.error(f"Failed to setup integration, Error: {ex}")
