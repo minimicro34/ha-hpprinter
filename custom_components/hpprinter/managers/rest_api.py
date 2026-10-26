@@ -457,6 +457,8 @@ class RestAPIv2:
             options = property_details.get("options")
             validation_warning = property_details.get("validationWarning", False)
             value = data_item_flat.get(property_path)
+            if value is None and property_path.endswith(".#text"):
+                value = data_item_flat.get(property_path[:-6])
 
             is_valid = True if options is None else str(value).lower() in options
 
