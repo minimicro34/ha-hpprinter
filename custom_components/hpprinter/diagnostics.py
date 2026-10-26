@@ -1,4 +1,5 @@
 """Diagnostics support for Tuya."""
+
 from __future__ import annotations
 
 import logging
@@ -6,7 +7,8 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceEntry
 
 from .common.consts import DOMAIN
@@ -52,12 +54,12 @@ def _async_get_diagnostics(
     devices = coordinator.get_devices()
 
     if device:
-        current_device_key = [
+        current_device_key = next(
             device_key
             for device_key in devices
             if coordinator.get_device(device_key).get("identifiers")
             == device.identifiers
-        ][0]
+        )
 
         device_data = coordinator.get_device_data(current_device_key)
 

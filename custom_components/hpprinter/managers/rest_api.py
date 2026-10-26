@@ -1,17 +1,13 @@
-from datetime import datetime
 import json
 import logging
 import sys
+from datetime import datetime
 
+import xmltodict
 from aiohttp import ClientResponseError, ClientSession, ClientTimeout, TCPConnector
 from defusedxml import ElementTree
 from flatten_json import flatten
-import xmltodict
-
-from homeassistant.helpers.aiohttp_client import (
-    async_create_clientsession,
-)
-
+from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.dispatcher import dispatcher_send
 from homeassistant.util import slugify, ssl
 from homeassistant.util.ssl import SSLCipherList
@@ -89,8 +85,8 @@ class RestAPIv2:
 
             await self._update_product_status_endpoint_data()
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
 
             _LOGGER.warning(
@@ -102,7 +98,7 @@ class RestAPIv2:
 
         connector = TCPConnector(
             loop=self._loop,
-            enable_cleanup_closed=True, # Hardcoded op True aangezien de constante weg is
+            enable_cleanup_closed=True,  # Hardcoded op True aangezien de constante weg is
             ssl=ssl_context,
         )
 
@@ -128,8 +124,8 @@ class RestAPIv2:
                 self._raw_data[endpoint] = data
                 self._last_update[endpoint] = now_ts
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
 
             _LOGGER.error(
@@ -166,8 +162,8 @@ class RestAPIv2:
                         if endpoint != PRODUCT_STATUS_ENDPOINT:
                             self._last_update[endpoint] = 0
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
 
             _LOGGER.error(
@@ -176,7 +172,7 @@ class RestAPIv2:
 
         return was_changed
 
-    async def update(self, endpoints: list[str] = None):
+    async def update(self, endpoints: list[str] | None = None):
         try:
             _LOGGER.debug(f"Updating data from {self.config_data.hostname}")
 
@@ -198,8 +194,8 @@ class RestAPIv2:
 
                 self._extract_data(devices)
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
 
             _LOGGER.error(f"Failed to update data, Error: {ex}, Line: {line_number}")
@@ -250,7 +246,7 @@ class RestAPIv2:
                 else:
                     device_key = f"{device_type}.{device_id}"
 
-            data = device_data[device_key] if device_key in device_data else {}
+            data = device_data.get(device_key, {})
 
             has_data = len(list(item_data.keys())) > 0
             data.update(item_data)
@@ -410,7 +406,7 @@ class RestAPIv2:
 
         except ClientResponseError as cre:
             if cre.status == 404:
-                exc_type, exc_obj, tb = sys.exc_info()
+                tb = sys.exc_info()[2]
                 line_number = tb.tb_lineno
                 completed_ts = datetime.now().timestamp()
                 time_taken = completed_ts - start_ts
@@ -423,7 +419,7 @@ class RestAPIv2:
                 )
 
             else:
-                exc_type, exc_obj, tb = sys.exc_info()
+                tb = sys.exc_info()[2]
                 line_number = tb.tb_lineno
                 completed_ts = datetime.now().timestamp()
                 time_taken = completed_ts - start_ts
@@ -438,8 +434,8 @@ class RestAPIv2:
         except TimeoutError:
             _LOGGER.error(f"Failed to get {endpoint} due to timeout")
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
 
             completed_ts = datetime.now().timestamp()

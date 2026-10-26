@@ -2,6 +2,7 @@ import logging
 import sys
 
 from homeassistant.core import Event, callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
     async_dispatcher_send,
@@ -109,6 +110,12 @@ class HACoordinator(DataUpdateCoordinator):
             )
         )
 
+    def _parent_device_id(self, identifier: tuple[str, str]) -> str | None:
+        """Resolve an existing parent device to its registry ID."""
+        registry = dr.async_get(self.hass)
+        parent = registry.async_get_device(identifiers={identifier})
+        return parent.id if parent else None
+
     def create_main_device(
         self, device_key: str, device_data: dict, device_config: dict
     ):
@@ -132,8 +139,8 @@ class HACoordinator(DataUpdateCoordinator):
 
             self._devices[device_key] = device_info
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
             _LOGGER.error(
                 f"Failed to create main device, "
@@ -166,13 +173,13 @@ class HACoordinator(DataUpdateCoordinator):
                 model=model,
                 serial_number=serial_number,
                 manufacturer=manufacturer,
-                via_device=(DOMAIN, self._main_device_id),
+                via_device_id=self._parent_device_id((DOMAIN, self._main_device_id)),
             )
 
             self._devices[device_key] = device_info
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
             _LOGGER.error(
                 f"Failed to sub unit device, "
@@ -223,13 +230,15 @@ class HACoordinator(DataUpdateCoordinator):
                 model=model,
                 serial_number=serial_number,
                 manufacturer=manufacturer,
-                via_device=(DOMAIN, printer_device_unique_id),
+                via_device_id=self._parent_device_id(
+                    (DOMAIN, printer_device_unique_id)
+                ),
             )
 
             self._devices[device_key] = device_info
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
             _LOGGER.error(
                 f"Failed to consumable device, "
@@ -266,13 +275,13 @@ class HACoordinator(DataUpdateCoordinator):
                 model=model,
                 serial_number=serial_number,
                 manufacturer=manufacturer,
-                via_device=(DOMAIN, self._main_device_id),
+                via_device_id=self._parent_device_id((DOMAIN, self._main_device_id)),
             )
 
             self._devices[device_key] = device_info
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
             _LOGGER.error(
                 f"Failed to adapter device, "
@@ -319,7 +328,7 @@ class HACoordinator(DataUpdateCoordinator):
 
             return self._api.data
 
-        except Exception as err:
+        except Exception as err:  # noqa: BLE001 - wrap coordinator failures
             raise UpdateFailed(f"Error communicating with API: {err}")
 
     async def _on_device_discovered(

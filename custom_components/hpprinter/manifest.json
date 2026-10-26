@@ -1,13 +1,22 @@
 {
   "domain": "hpprinter",
   "name": "HP Printer",
-  "after_dependencies": ["logger"],
-  "codeowners": ["@elad-bar"],
+  "after_dependencies": [
+    "logger"
+  ],
+  "codeowners": [
+    "@minimicro34"
+  ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/elad-bar/ha-hpprinter",
+  "documentation": "https://github.com/minimicro34/ha-hpprinter",
+  "integration_type": "device",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/elad-bar/ha-hpprinter/issues",
-  "requirements": ["xmltodict~=0.13.0", "flatten_json", "defusedxml"],
-  "version": "2.0.6"
+  "issue_tracker": "https://github.com/minimicro34/ha-hpprinter/issues",
+  "requirements": [
+    "xmltodict>=1.0.4",
+    "flatten_json",
+    "defusedxml"
+  ],
+  "version": "3.0.0"
 }

@@ -1,0 +1,67 @@
+name: Validate
+
+on:
+  push:
+    branches:
+      - master
+      - "fix/**"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Python quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install Ruff
+        run: python -m pip install ruff
+
+      - name: Ruff lint
+        run: ruff check custom_components/hpprinter
+
+      - name: Ruff formatting
+        run: ruff format --check custom_components/hpprinter
+
+      - name: Check Python syntax
+        run: python -m compileall -q custom_components/hpprinter
+
+      - name: Check JSON syntax
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for file in Path("custom_components/hpprinter").rglob("*.json"):
+              json.loads(file.read_text(encoding="utf-8"))
+              print(f"OK: {file}")
+          PY
+
+  hassfest:
+    name: hassfest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Run hassfest
+        uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Run HACS validation
+        uses: hacs/action@main
+        with:
+          category: integration
