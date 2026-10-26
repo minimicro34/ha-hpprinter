@@ -2,7 +2,9 @@
   "domain": "hpprinter",
   "name": "HP Printer",
   "after_dependencies": [
-    "logger"
+    "logger",
+    "http",
+    "lovelace"
   ],
   "codeowners": [
     "@minimicro34"
