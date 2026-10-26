@@ -6,9 +6,13 @@ This repository is maintained by [@minimicro34](https://github.com/minimicro34),
 
 The v3.0.0 compatibility update is **in development and not yet released**. It targets recent Home Assistant versions and still requires validation on real hardware.
 
-### Licensing
+### Licensing and upstream attribution
 
-The upstream repository did not provide an explicit license. Attribution does not itself grant permission to relicense the upstream code. New contributions may be offered under GPL-3.0, subject to resolving permissions for the original code.
+This project is based on the original [HP Printer integration by elad-bar](https://github.com/elad-bar/ha-hpprinter), with credit to its author and contributors.
+
+The [GNU General Public License v3.0](LICENSE) applies to **new code and original contributions published by this fork starting with v3.0.0**, to the extent that their respective copyright holders have the right to license them under GPL-3.0.
+
+The original upstream code was published without an explicit license. It is **not** retroactively relicensed by this repository's GPL-3.0 file, and its copyright and reuse permissions remain with the original rights holders. The presence of a GPL-3.0 file does not itself resolve permission to redistribute upstream code.
 
 ## Description
 
