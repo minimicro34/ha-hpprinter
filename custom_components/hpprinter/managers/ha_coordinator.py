@@ -230,7 +230,9 @@ class HACoordinator(DataUpdateCoordinator):
                 model=model,
                 serial_number=serial_number,
                 manufacturer=manufacturer,
-                via_device_id=self._parent_device_id((DOMAIN, printer_device_unique_id)),
+                via_device_id=self._parent_device_id(
+                    (DOMAIN, printer_device_unique_id)
+                ),
             )
 
             self._devices[device_key] = device_info
