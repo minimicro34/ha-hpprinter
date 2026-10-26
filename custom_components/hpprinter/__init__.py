@@ -3,6 +3,7 @@ import sys
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_START
+from homeassistant.helpers import config_validation as cv
 from homeassistant.core import HomeAssistant
 
 from .common.consts import DEFAULT_NAME, DOMAIN
@@ -10,6 +11,8 @@ from .managers.ha_config_manager import HAConfigManager
 from .managers.ha_coordinator import HACoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(_hass, _config):
