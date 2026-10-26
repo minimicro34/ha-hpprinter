@@ -59,7 +59,7 @@ jobs:
           python-version: "3.14"
 
       - name: Install test dependencies
-        run: python -m pip install homeassistant pytest pytest-asyncio pytest-cov xmltodict flatten-json defusedxml
+        run: python -m pip install homeassistant pytest pytest-asyncio pytest-cov xmltodict flatten-json defusedxml aiofiles
 
       - name: Run regression tests with coverage
         run: python -m pytest tests -q --cov=custom_components.hpprinter.managers.rest_api --cov-report=term-missing --cov-report=xml:coverage.xml
