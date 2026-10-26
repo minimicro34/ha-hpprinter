@@ -9,6 +9,7 @@ from defusedxml import ElementTree
 from flatten_json import flatten
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.dispatcher import dispatcher_send
+from homeassistant.helpers.storage import Store
 from homeassistant.util import slugify, ssl
 from homeassistant.util.ssl import SSLCipherList
 
@@ -43,6 +44,13 @@ class RestAPIv2:
         self._support_prefetch: bool = False
 
         self._is_online: bool = False
+        self._cache_store = (
+            Store(hass, 1, f"hpprinter.{config_manager.entry_id}.cache")
+            if hass is not None
+            else None
+        )
+        self._cache_dirty = False
+        self._last_successful_update: float | None = None
 
     @property
     def data(self) -> dict | None:
@@ -76,6 +84,16 @@ class RestAPIv2:
             self._session = None
 
     async def initialize(self):
+        if self._cache_store is not None:
+            cached = await self._cache_store.async_load()
+            if isinstance(cached, dict):
+                self._raw_data = {
+                    endpoint: payload
+                    for endpoint, payload in cached.get("endpoints", {}).items()
+                    if endpoint != PRODUCT_STATUS_ENDPOINT
+                }
+                self._last_successful_update = cached.get("last_successful_update")
+
         try:
             if self._session is None:
                 if self._hass is None:
@@ -126,6 +144,10 @@ class RestAPIv2:
                 if data is not None or endpoint == PRODUCT_STATUS_ENDPOINT:
                     self._raw_data[endpoint] = data
                     self._last_update[endpoint] = now_ts
+                    if data is not None:
+                        self._last_successful_update = now_ts
+                        if endpoint != PRODUCT_STATUS_ENDPOINT:
+                            self._cache_dirty = True
 
         except Exception as ex:  # noqa: BLE001 - report device or API failures
             tb = sys.exc_info()[2]
@@ -192,7 +214,17 @@ class RestAPIv2:
                     if was_updated:
                         update_counter += 1
 
-            if update_counter > 0:
+            if self._cache_dirty and self._cache_store is not None:
+                await self._cache_store.async_save({
+                    "endpoints": {
+                        key: value for key, value in self._raw_data.items()
+                        if key != PRODUCT_STATUS_ENDPOINT and value is not None
+                    },
+                    "last_successful_update": self._last_successful_update,
+                })
+                self._cache_dirty = False
+
+            if update_counter > 0 or (self._raw_data and not self._data):
                 devices = self._get_devices_data()
 
                 self._extract_data(devices)
