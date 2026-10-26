@@ -7,7 +7,6 @@ import xmltodict
 from aiohttp import ClientResponseError, ClientSession, ClientTimeout, TCPConnector
 from defusedxml import ElementTree
 from flatten_json import flatten
-
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.dispatcher import dispatcher_send
 from homeassistant.util import slugify, ssl
