@@ -7,7 +7,9 @@
   "dependencies": [],
   "documentation": "https://github.com/elad-bar/ha-hpprinter",
   "iot_class": "local_polling",
+  "integration_type": "device",
+  "categories": ["other"],
   "issue_tracker": "https://github.com/elad-bar/ha-hpprinter/issues",
-  "requirements": ["xmltodict~=0.13.0", "flatten_json", "defusedxml"],
+  "requirements": ["xmltodict==1.0.4", "flatten_json", "defusedxml"],
   "version": "2.0.6"
 }
