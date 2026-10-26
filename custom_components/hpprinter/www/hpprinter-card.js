@@ -45,6 +45,9 @@ class HPPrinterCard extends HTMLElement {
       ...(["color_impressions", "monochrome_impressions"]
         .map((key) => [key === "color_impressions" ? "Impressions couleur" : "Impressions noir et blanc", value("printer", key)])
         .filter(([, count]) => count !== "—")),
+      ...([["normal_impressions", "Qualité normale"], ["draft_impressions", "Qualité brouillon"], ["better_impressions", "Qualité supérieure"]]
+        .map(([key, label]) => [label, value("printer", key)])
+        .filter(([, count]) => count !== "—")),
       ["Recto verso", value("printer", "duplex_sheets")],
       ["Bourrages papier", value("printer", "jam_events")],
       ["Incidents d’alimentation papier", value("printer", "mispick_events")],
