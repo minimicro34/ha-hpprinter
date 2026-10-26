@@ -5,7 +5,6 @@ from datetime import timedelta
 from pathlib import Path
 
 import aiofiles
-
 from homeassistant.config_entries import STORAGE_VERSION, ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
