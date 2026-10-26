@@ -1,6 +1,17 @@
 # Changelog
 
-## 3.0.0 — In development
+## 3.0.1 — In development
+
+### Fixed
+- Replace deprecated device registry lookup with `async_get_device_by_identifier`, scoped to the current config entry.
+- Keep the last successful non-status endpoint response when a polling request fails, instead of clearing cached counters and consumable readings.
+
+### Compatibility and testing
+- Preserve existing device identifiers and entity unique IDs.
+- Offline state restoration across Home Assistant restarts and last-successful-update metadata are not yet implemented.
+- Pending validation on HP ENVY 4500 and Ruff, hassfest, and HACS checks. Do not publish before validation.
+
+## 3.0.0 — Released
 
 ### Changed
 - Begin maintenance of the HP Printer integration in the `minimicro34/ha-hpprinter` fork.
@@ -11,8 +22,7 @@
 - Clean up legacy Python lint findings and update HACS metadata.
 
 ### Compatibility and testing
-- **Not yet released.** Home Assistant device registration and existing entity IDs still require testing on a real printer.
-- The CI must pass before the v3.0.0 release is published.
+- Validated on HP ENVY 4500 with Home Assistant; sensors report correctly while the printer is online.
 
 
 ## 2.0.5
