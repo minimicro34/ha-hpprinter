@@ -1,18 +1,18 @@
 {
   "config": {
     "abort": {
-      "already_configured": "HP Imprimante Integration ({name}) d\u00e9j\u00e0 configur\u00e9"
+      "already_configured": "HP Imprimante Integration ({name}) déjà configuré"
     },
     "error": {
-      "error_400": "D\u00e9tails du serveur non valides, veuillez essayer un acc\u00e8s manuellement \u00e0 `http://{IP}//DevMgmt/ProductStatusDyn.xml` (Remplacez l'espace r\u00e9serv\u00e9 par IP ou nom d'h\u00f4te), au cas o\u00f9 il est accessible, veuillez signaler le probl\u00e8me avec les journaux",
+      "error_400": "Détails du serveur non valides, veuillez essayer un accès manuellement à `http://{IP}//DevMgmt/ProductStatusDyn.xml` (Remplacez l'espace réservé par IP ou nom d'hôte), au cas où il est accessible, veuillez signaler le problème avec les journaux",
       "error_404": "API non pris en charge"
     },
     "step": {
       "user": {
         "data": {
-          "host": "Nom d'h\u00f4te ou IP",
+          "host": "Nom d'hôte ou IP",
           "name": "Nom",
-          "port": "Num\u00e9ro de port",
+          "port": "Numéro de port",
           "ssl": "Utiliser SSL"
         },
         "title": "Configurer l'imprimante HP"
@@ -28,10 +28,10 @@
         "name": "Statut"
       },
       "hardware_config_is_connected": {
-        "name": "Connect\u00e9"
+        "name": "Connecté"
       },
       "registration_state": {
-        "name": "ePrint enregistr\u00e9"
+        "name": "ePrint enregistré"
       }
     },
     "sensor": {
@@ -52,8 +52,8 @@
         "state": {
           "ink": "Encre",
           "inkcartridge": "Encre",
-          "inktank": "R\u00e9servoir d'encre",
-          "printhead": "T\u00eate d'impression",
+          "inktank": "Réservoir d'encre",
+          "printhead": "Tête d'impression",
           "toner": "Toner",
           "tonercartridge": "Toner"
         }
@@ -64,10 +64,10 @@
           "canceljob": "Annulation travail",
           "copying": "Copie",
           "inpowersave": "Inactif",
-          "off": "D\u00e9sactiv\u00e9",
+          "off": "Désactivé",
           "processing": "Impression",
-          "ready": "Pr\u00eat",
-          "scanprocessing": "Num\u00c3\u00a9risation"
+          "ready": "Prêt",
+          "scanprocessing": "NumÃ©risation"
         }
       },
       "duplex_sheets": {
@@ -92,7 +92,7 @@
         "name": "Date de fabrication"
       },
       "mispick_events": {
-        "name": "Total bourrages entrants"
+        "name": "Incidents d’alimentation papier"
       },
       "monochrome_impressions": {
         "name": "Total pages en noir et blanc"
@@ -114,35 +114,38 @@
       },
       "warranty_expiration_date": {
         "name": "Date d'expiration"
+      },
+      "last_successful_update": {
+        "name": "Dernière synchronisation réussie"
       }
     }
   },
   "options": {
     "error": {
-      "already_configured": "HP Imprimante Integration ({name}) d\u00e9j\u00e0 configur\u00e9",
-      "error_400": "D\u00e9tails du serveur non valides, veuillez essayer un acc\u00e8s manuellement \u00e0 `http://{IP}//DevMgmt/ProductStatusDyn.xml` (Remplacez l'espace r\u00e9serv\u00e9 par IP ou nom d'h\u00f4te), au cas o\u00f9 il est accessible, veuillez signaler le probl\u00e8me avec les journaux",
+      "already_configured": "HP Imprimante Integration ({name}) déjà configuré",
+      "error_400": "Détails du serveur non valides, veuillez essayer un accès manuellement à `http://{IP}//DevMgmt/ProductStatusDyn.xml` (Remplacez l'espace réservé par IP ou nom d'hôte), au cas où il est accessible, veuillez signaler le problème avec les journaux",
       "error_404": "API non pris en charge"
     },
     "step": {
       "hp_printer_additional_settings": {
         "data": {
-          "host": "Nom d'h\u00f4te ou IP",
+          "host": "Nom d'hôte ou IP",
           "log_level": "Niveau de journal",
           "name": "Nom",
-          "store_data": "Doit stocker les r\u00e9ponses ?",
-          "update_interval": "Mettre \u00e0 jour l'intervalle (secondes)"
+          "store_data": "Doit stocker les réponses ?",
+          "update_interval": "Mettre à jour l'intervalle (secondes)"
         },
-        "description": "D\u00e9finir des param\u00e8tres suppl\u00e9mentaires pour l'int\u00e9gration de l'imprimante HP",
+        "description": "Définir des paramètres supplémentaires pour l'intégration de l'imprimante HP",
         "title": "Options pour l'imprimante HP."
       },
       "init": {
         "data": {
-          "host": "Nom d'h\u00f4te ou IP",
-          "port": "Num\u00e9ro de port",
+          "host": "Nom d'hôte ou IP",
+          "port": "Numéro de port",
           "ssl": "Utiliser SSL",
-          "update_interval": "Interval de mise \u00e0 jour (secondes)"
+          "update_interval": "Interval de mise à jour (secondes)"
         },
-        "description": "D\u00e9finir des param\u00e8tres suppl\u00e9mentaires pour l'int\u00e9gration de l'imprimante HP",
+        "description": "Définir des paramètres supplémentaires pour l'intégration de l'imprimante HP",
         "title": "Options pour l'imprimante HP."
       }
     }
