@@ -354,6 +354,24 @@ class RestAPIv2:
 
         return result
 
+    @staticmethod
+    def _find_media_type_entries(node):
+        """Locate media-type usage entries regardless of their XML parent."""
+        matches = []
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "UsageByMediaType":
+                    entries = value if isinstance(value, list) else [value]
+                    matches.extend(
+                        entry for entry in entries if isinstance(entry, dict)
+                    )
+                else:
+                    matches.extend(RestAPIv2._find_media_type_entries(value))
+        elif isinstance(node, list):
+            for item in node:
+                matches.extend(RestAPIv2._find_media_type_entries(item))
+        return matches
+
     def _get_devices_data(self):
         devices = []
 
@@ -365,7 +383,11 @@ class RestAPIv2:
             if endpoint is not None:
                 data_item = self._raw_data.get(endpoint)
 
-                data = self._get_data_section(data_item, path)
+                data = (
+                    self._find_media_type_entries(data_item)
+                    if data_point.get("recursive_media_type")
+                    else self._get_data_section(data_item, path)
+                )
                 if (
                     data_point.get("name") == "Status"
                     and self._last_successful_update is not None
