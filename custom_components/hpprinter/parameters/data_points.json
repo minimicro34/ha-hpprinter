@@ -262,21 +262,21 @@
     },
     "properties": {
       "normal_impressions": {
-        "path": "UsageByQuality.NormalImpressions",
+        "path": "UsageByQuality.NormalImpressions.#text",
         "platform": "sensor",
         "unit_of_measurement": "pages",
         "state_class": "total_increasing",
         "icon": "mdi:printer"
       },
       "draft_impressions": {
-        "path": "UsageByQuality.DraftImpressions",
+        "path": "UsageByQuality.DraftImpressions.#text",
         "platform": "sensor",
         "unit_of_measurement": "pages",
         "state_class": "total_increasing",
         "icon": "mdi:printer"
       },
       "better_impressions": {
-        "path": "UsageByQuality.BetterImpressions",
+        "path": "UsageByQuality.BetterImpressions.#text",
         "platform": "sensor",
         "unit_of_measurement": "pages",
         "state_class": "total_increasing",
