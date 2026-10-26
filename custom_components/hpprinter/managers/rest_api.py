@@ -98,7 +98,7 @@ class RestAPIv2:
 
         connector = TCPConnector(
             loop=self._loop,
-            enable_cleanup_closed=True, # Hardcoded op True aangezien de constante weg is
+            enable_cleanup_closed=True,  # Hardcoded op True aangezien de constante weg is
             ssl=ssl_context,
         )
 
