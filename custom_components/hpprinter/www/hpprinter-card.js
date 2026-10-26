@@ -42,8 +42,9 @@ class HPPrinterCard extends HTMLElement {
       ["Acquisitions pour copie (vitre)", value("copy", "flatbed_images")],
       ["Copies couleur", value("copy", "color_impressions")],
       ["Copies noir et blanc", value("copy", "monochrome_impressions")],
-      ["Impressions couleur", value("printer", "color_impressions")],
-      ["Impressions noir et blanc", value("printer", "monochrome_impressions")],
+      ...(["color_impressions", "monochrome_impressions"]
+        .map((key) => [key === "color_impressions" ? "Impressions couleur" : "Impressions noir et blanc", value("printer", key)])
+        .filter(([, count]) => count !== "—")),
       ["Recto verso", value("printer", "duplex_sheets")],
       ["Bourrages papier", value("printer", "jam_events")],
       ["Incidents d’alimentation papier", value("printer", "mispick_events")],
@@ -76,7 +77,7 @@ class HPPrinterCard extends HTMLElement {
         .ink-label { display:flex; justify-content:space-between; margin-bottom:6px; }
         .track { background:var(--divider-color); border-radius:20px; height:9px; overflow:hidden; }
         .fill { height:100%; background:var(--primary-color); border-radius:20px; }
-        .fill.black { background:#343434; }
+        .fill.black { background:var(--primary-text-color); }
         .fill.color { background:linear-gradient(90deg,#00bcd4,#d344ad,#e6bc21); }
         .fill.cyan { background:#00bcd4; }
         .fill.magenta { background:#d344ad; }
