@@ -1,6 +1,23 @@
 # Changelog
 
-## 3.0.1 — In development
+## 3.0.2 — In development
+
+### Added
+- Bundle an HP Printer Lovelace card, with automatic entity discovery, printer status, usage counters, ink levels and expandable diagnostics.
+- Automatically register the versioned Lovelace card resource when dashboard resources use storage mode.
+- Expose a timestamp sensor for the last successful printer synchronization, including the last known value while offline.
+- Add pytest regression tests for cached counters and offline status, with pytest-cov and an archived XML coverage report in GitHub Actions.
+
+### Changed
+- Display copy totals from the printer-reported total, without recomputing them from color and monochrome counters.
+- Show copy flatbed acquisitions separately from printed copies; improve paper-feed incident and ePrint labels.
+- Avoid persisting the successful-sync timestamp on every frequent status poll; retain cached endpoint responses.
+
+### Testing
+- Initial REST API coverage: 32% (3 tests passed); coverage is limited to this module, not the entire integration.
+- Hardware validation of the new Lovelace card and timestamp sensor is still pending. Do not publish until tested.
+
+## 3.0.1 — Released
 
 ### Fixed
 - Replace deprecated device registry lookup with `async_get_device_by_identifier`, scoped to the current config entry.
