@@ -71,8 +71,8 @@ def _async_handle_device_created(
 
             entities.append(entity)
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
 
             _LOGGER.error(
