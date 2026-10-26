@@ -7,6 +7,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 
 from .common.consts import DEFAULT_NAME, DOMAIN
+from .frontend import async_register_card
 from .managers.ha_config_manager import HAConfigManager
 from .managers.ha_coordinator import HACoordinator
 
@@ -15,7 +16,8 @@ _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
-async def async_setup(_hass, _config):
+async def async_setup(hass, _config):
+    await async_register_card(hass)
     return True
 
 
