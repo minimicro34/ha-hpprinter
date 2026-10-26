@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.0.0 — In development
+
+### Changed
+- Begin maintenance of the HP Printer integration in the `minimicro34/ha-hpprinter` fork.
+- Adapt device parent references to the Home Assistant `via_device_id` API (runtime validation pending).
+- Update the `xmltodict` requirement for current Home Assistant compatibility.
+- Add configuration schema metadata and integration categories for hassfest.
+- Refresh GitHub Actions validation with Python, Ruff, hassfest, and HACS checks; remove legacy scheduled workflows.
+- Clean up legacy Python lint findings and update HACS metadata.
+
+### Compatibility and testing
+- **Not yet released.** Home Assistant device registration and existing entity IDs still require testing on a real printer.
+- The CI must pass before the v3.0.0 release is published.
+
+
 ## 2.0.5
 
 - Initialize data using `async_request_refresh` instead of `async_config_entry_first_refresh` to remove warning message
