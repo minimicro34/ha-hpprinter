@@ -386,6 +386,17 @@ class RestAPIv2:
                         ]
 
                 if properties is not None:
+                    item_filter = data_point.get("filter", {})
+                    if isinstance(data, list) and item_filter:
+                        data = [
+                            item for item in data
+                            if isinstance(item, dict)
+                            and all(item.get(key) == expected for key, expected in item_filter.items())
+                        ]
+                    elif isinstance(data, dict) and item_filter:
+                        data = data if all(
+                            data.get(key) == expected for key, expected in item_filter.items()
+                        ) else None
                     if isinstance(data, list):
                         devices.extend(
                             [
