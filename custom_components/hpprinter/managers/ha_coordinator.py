@@ -113,7 +113,7 @@ class HACoordinator(DataUpdateCoordinator):
     def _parent_device_id(self, identifier: tuple[str, str]) -> str | None:
         """Resolve an existing parent device to its registry ID."""
         registry = dr.async_get(self.hass)
-        parent = registry.async_get_device(identifiers={identifier})
+        parent = registry.async_get_device_by_identifier(identifier, self.entry_id)
         return parent.id if parent else None
 
     def create_main_device(
