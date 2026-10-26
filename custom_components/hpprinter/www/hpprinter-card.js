@@ -36,9 +36,17 @@ class HPPrinterCard extends HTMLElement {
       ["Impressions", value("printer", "total_impressions")],
       ["Copies", value("copy", "total_impressions")],
       ["Scans", value("scanner", "scan_images")],
+    ];
+    const diagnostics = [
+      ["Dernière synchronisation", value("main", "last_successful_update")],
+      ["Copies couleur", value("copy", "color_impressions")],
+      ["Copies noir et blanc", value("copy", "monochrome_impressions")],
+      ["Impressions couleur", value("printer", "color_impressions")],
+      ["Impressions noir et blanc", value("printer", "monochrome_impressions")],
       ["Recto verso", value("printer", "duplex_sheets")],
-      ["Bourrages", value("printer", "jam_events")],
-      ["Prises papier manquées", value("printer", "mispick_events")],
+      ["Bourrages papier", value("printer", "jam_events")],
+      ["Incidents d’alimentation papier", value("printer", "mispick_events")],
+      ["ePrint enregistré", value("eprint", "registration_state")],
     ];
     const inkRows = available.filter((e) => e.unique_id?.endsWith("_sensor_consumable_percentage_level_remaining") ||
       e.unique_id?.endsWith("_sensor_consumable_raw_percentage_level_remaining"));
@@ -61,6 +69,9 @@ class HPPrinterCard extends HTMLElement {
         .ink-label { display:flex; justify-content:space-between; margin-bottom:6px; }
         .track { background:var(--divider-color); border-radius:20px; height:9px; overflow:hidden; }
         .fill { height:100%; background:var(--primary-color); border-radius:20px; }
+        details { margin-top:18px; border-top:1px solid var(--divider-color); padding-top:12px; }
+        summary { cursor:pointer; font-weight:600; }
+        .diag-row { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid var(--divider-color); font-size:13px; }
         .hint { color:var(--secondary-text-color); font-size:13px; }
       </style>
       <ha-card>
@@ -70,6 +81,7 @@ class HPPrinterCard extends HTMLElement {
         <div class="grid">${printers.map(([name, count]) => `<div class="metric"><strong>${esc(count)}</strong><span>${esc(name)}</span></div>`).join("")}</div>
         <h3>Cartouches</h3>
         ${ink.length ? ink.map((i) => `<div class="ink"><div class="ink-label"><span>${esc(i.name)}</span><b>${esc(i.state)} %</b></div><div class="track"><div class="fill" style="width:${pct(i.state)}%"></div></div></div>`).join("") : '<p class="hint">Niveaux non disponibles.</p>'}
+        <details><summary>Diagnostics</summary>${diagnostics.map(([name, count]) => `<div class="diag-row"><span>${esc(name)}</span><strong>${esc(count)}</strong></div>`).join("")}</details>
       </ha-card>`;
   }
 }
