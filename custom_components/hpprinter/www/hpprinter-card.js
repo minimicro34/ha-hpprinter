@@ -39,6 +39,7 @@ class HPPrinterCard extends HTMLElement {
     ];
     const diagnostics = [
       ["Dernière synchronisation", value("main", "last_successful_update")],
+      ["Acquisitions pour copie (vitre)", value("copy", "flatbed_images")],
       ["Copies couleur", value("copy", "color_impressions")],
       ["Copies noir et blanc", value("copy", "monochrome_impressions")],
       ["Impressions couleur", value("printer", "color_impressions")],
@@ -46,7 +47,7 @@ class HPPrinterCard extends HTMLElement {
       ["Recto verso", value("printer", "duplex_sheets")],
       ["Bourrages papier", value("printer", "jam_events")],
       ["Incidents d’alimentation papier", value("printer", "mispick_events")],
-      ["ePrint enregistré", value("main", "registration_state")],
+      ["ePrint enregistré", (() => { const state = find("main", "registration_state", "binary_sensor"); return state ? (state.state === "on" ? "Oui" : state.state === "off" ? "Non" : "—") : "—"; })()],
     ];
     const inkRows = available.filter((e) => e.unique_id?.endsWith("_sensor_consumable_percentage_level_remaining") ||
       e.unique_id?.endsWith("_sensor_consumable_raw_percentage_level_remaining"));
