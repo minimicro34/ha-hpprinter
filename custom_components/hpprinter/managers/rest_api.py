@@ -51,6 +51,7 @@ class RestAPIv2:
         )
         self._cache_dirty = False
         self._last_successful_update: float | None = None
+        self._last_persisted_success: float | None = None
 
     @property
     def data(self) -> dict | None:
@@ -93,6 +94,7 @@ class RestAPIv2:
                     if endpoint != PRODUCT_STATUS_ENDPOINT
                 }
                 self._last_successful_update = cached.get("last_successful_update")
+                self._last_persisted_success = self._last_successful_update
 
         try:
             if self._session is None:
@@ -146,7 +148,10 @@ class RestAPIv2:
                     self._last_update[endpoint] = now_ts
                     if data is not None:
                         self._last_successful_update = now_ts
-                        if endpoint != PRODUCT_STATUS_ENDPOINT:
+                        if endpoint != PRODUCT_STATUS_ENDPOINT or (
+                            self._last_persisted_success is None
+                            or now_ts - self._last_persisted_success >= 300
+                        ):
                             self._cache_dirty = True
 
         except Exception as ex:  # noqa: BLE001 - report device or API failures
@@ -226,6 +231,7 @@ class RestAPIv2:
                     }
                 )
                 self._cache_dirty = False
+                self._last_persisted_success = self._last_successful_update
 
             if update_counter > 0 or (self._raw_data and not self._data):
                 devices = self._get_devices_data()
