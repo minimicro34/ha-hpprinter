@@ -18,8 +18,5 @@
     "flatten_json",
     "defusedxml"
   ],
-  "version": "3.0.0",
-  "categories": [
-    "computers_network.printers"
-  ]
+  "version": "3.0.0"
 }
