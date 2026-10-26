@@ -1,20 +1,20 @@
 # HP Printer integration for Home Assistant
 
-## This is a fork with updates so this integration works with HA 2026.2
+## Maintenance fork
 
-### 📌 Maintenance Notice
+This repository is maintained by [@minimicro34](https://github.com/minimicro34), based on the original HP Printer integration by [@elad-bar](https://github.com/elad-bar/ha-hpprinter). Thanks to the original author and contributors for their work.
 
-This integration is no longer actively developed, as I no longer have access to an HP printer for testing.  
-However, I will review and approve community contributions (issues and pull requests) if they are tested and confirmed to work.  
+The v3.0.0 compatibility update is **in development and not yet released**. It targets recent Home Assistant versions and still requires validation on real hardware.
 
-If you rely on this integration, please consider contributing fixes and improvements.  
-pull requests are welcome!
+### Licensing
+
+The upstream repository did not provide an explicit license. Attribution does not itself grant permission to relicense the upstream code. New contributions may be offered under GPL-3.0, subject to resolving permissions for the original code.
 
 ## Description
 
 Configuration support multiple HP Printer devices through Configuration -> Integrations
 
-[Changelog](https://github.com/elad-bar/ha-hpprinter/blob/master/CHANGELOG.md)
+[Changelog](https://github.com/minimicro34/ha-hpprinter/blob/master/CHANGELOG.md)
 
 ## How to
 
@@ -25,7 +25,7 @@ Configuration support multiple HP Printer devices through Configuration -> Integ
 ### Installations via HACS [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 
 - In HACS, look for "HP Printer" and install and restart
-- If integration was not found, please add custom repository `elad-bar/hpprinter` as integration
+- If integration was not found, please add custom repository `minimicro34/ha-hpprinter` as integration
 - In Settings --> Devices & Services - (Lower Right) "Add Integration"
 
 ### Setup
