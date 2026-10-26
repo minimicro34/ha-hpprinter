@@ -31,7 +31,7 @@ class HPPrinterCard extends HTMLElement {
       const state = find(device, key);
       return state && !["unknown", "unavailable"].includes(state.state) ? state.state : "—";
     };
-    const status = value("main", "device_status") !== "—" ? value("main", "device_status") : value("status", "device_status");
+    const status = value("main", "device_status");
     const printers = [
       ["Impressions", value("printer", "total_impressions")],
       ["Copies", value("copy", "total_impressions")],
@@ -46,14 +46,20 @@ class HPPrinterCard extends HTMLElement {
       ["Recto verso", value("printer", "duplex_sheets")],
       ["Bourrages papier", value("printer", "jam_events")],
       ["Incidents d’alimentation papier", value("printer", "mispick_events")],
-      ["ePrint enregistré", value("eprint", "registration_state")],
+      ["ePrint enregistré", value("main", "registration_state")],
     ];
     const inkRows = available.filter((e) => e.unique_id?.endsWith("_sensor_consumable_percentage_level_remaining") ||
       e.unique_id?.endsWith("_sensor_consumable_raw_percentage_level_remaining"));
-    const ink = inkRows.map((e) => ({ name: e.entity_id.split(".")[1].replace(/_/g, " "), state: this._hass.states[e.entity_id]?.state }))
+    const ink = inkRows.map((e) => {
+      const name = e.unique_id?.match(/_consumable_([^_]+)_sensor_/)?.[1]?.toUpperCase();
+      const color = name === "K" ? "black" : name === "CMY" ? "color" : name === "C" ? "cyan" : name === "M" ? "magenta" : name === "Y" ? "yellow" : null;
+      const labels = { black: "Noir", color: "Couleur", cyan: "Cyan", magenta: "Magenta", yellow: "Jaune" };
+      return { name: labels[color] || this._hass.states[e.entity_id]?.attributes.friendly_name || e.entity_id, color, state: this._hass.states[e.entity_id]?.state };
+    })
       .filter((item) => item.state && !["unknown", "unavailable"].includes(item.state));
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
     const pct = (v) => Math.max(0, Math.min(100, Number(v) || 0));
+    const diagnosticsOpen = this.shadowRoot.querySelector("details")?.open || false;
     this.shadowRoot.innerHTML = `
       <style>
         ha-card { padding:20px; color:var(--primary-text-color); }
@@ -69,6 +75,11 @@ class HPPrinterCard extends HTMLElement {
         .ink-label { display:flex; justify-content:space-between; margin-bottom:6px; }
         .track { background:var(--divider-color); border-radius:20px; height:9px; overflow:hidden; }
         .fill { height:100%; background:var(--primary-color); border-radius:20px; }
+        .fill.black { background:#343434; }
+        .fill.color { background:linear-gradient(90deg,#00bcd4,#d344ad,#e6bc21); }
+        .fill.cyan { background:#00bcd4; }
+        .fill.magenta { background:#d344ad; }
+        .fill.yellow { background:#e6bc21; }
         details { margin-top:18px; border-top:1px solid var(--divider-color); padding-top:12px; }
         summary { cursor:pointer; font-weight:600; }
         .diag-row { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid var(--divider-color); font-size:13px; }
@@ -80,8 +91,8 @@ class HPPrinterCard extends HTMLElement {
         <h3>Compteurs</h3>
         <div class="grid">${printers.map(([name, count]) => `<div class="metric"><strong>${esc(count)}</strong><span>${esc(name)}</span></div>`).join("")}</div>
         <h3>Cartouches</h3>
-        ${ink.length ? ink.map((i) => `<div class="ink"><div class="ink-label"><span>${esc(i.name)}</span><b>${esc(i.state)} %</b></div><div class="track"><div class="fill" style="width:${pct(i.state)}%"></div></div></div>`).join("") : '<p class="hint">Niveaux non disponibles.</p>'}
-        <details><summary>Diagnostics</summary>${diagnostics.map(([name, count]) => `<div class="diag-row"><span>${esc(name)}</span><strong>${esc(count)}</strong></div>`).join("")}</details>
+        ${ink.length ? ink.map((i) => `<div class="ink"><div class="ink-label"><span>${esc(i.name)}</span><b>${esc(i.state)} %</b></div><div class="track"><div class="fill ${esc(i.color || "")}" style="width:${pct(i.state)}%"></div></div></div>`).join("") : '<p class="hint">Niveaux non disponibles.</p>'}
+        <details ${diagnosticsOpen ? "open" : ""}><summary>Diagnostics</summary>${diagnostics.map(([name, count]) => `<div class="diag-row"><span>${esc(name)}</span><strong>${esc(count)}</strong></div>`).join("")}</details>
       </ha-card>`;
   }
 }
