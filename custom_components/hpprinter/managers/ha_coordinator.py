@@ -2,12 +2,12 @@ import logging
 import sys
 
 from homeassistant.core import Event, callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
     async_dispatcher_send,
 )
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import slugify
 
@@ -139,8 +139,8 @@ class HACoordinator(DataUpdateCoordinator):
 
             self._devices[device_key] = device_info
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
             _LOGGER.error(
                 f"Failed to create main device, "
@@ -178,8 +178,8 @@ class HACoordinator(DataUpdateCoordinator):
 
             self._devices[device_key] = device_info
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
             _LOGGER.error(
                 f"Failed to sub unit device, "
@@ -235,8 +235,8 @@ class HACoordinator(DataUpdateCoordinator):
 
             self._devices[device_key] = device_info
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
             _LOGGER.error(
                 f"Failed to consumable device, "
@@ -278,8 +278,8 @@ class HACoordinator(DataUpdateCoordinator):
 
             self._devices[device_key] = device_info
 
-        except Exception as ex:
-            exc_type, exc_obj, tb = sys.exc_info()
+        except Exception as ex:  # noqa: BLE001 - report device or API failures
+            tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
             _LOGGER.error(
                 f"Failed to adapter device, "
@@ -326,7 +326,7 @@ class HACoordinator(DataUpdateCoordinator):
 
             return self._api.data
 
-        except Exception as err:
+        except Exception as err:  # noqa: BLE001 - wrap coordinator failures
             raise UpdateFailed(f"Error communicating with API: {err}")
 
     async def _on_device_discovered(
