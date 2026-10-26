@@ -253,6 +253,38 @@
     }
   },
   {
+    "name": "PrintQuality",
+    "endpoint": "/DevMgmt/ProductUsageDyn.xml",
+    "path": "ProductUsageDyn.PrinterSubunit.UsageByMediaType",
+    "device_type": "Printer",
+    "filter": {
+      "MediaType": "plain"
+    },
+    "properties": {
+      "normal_impressions": {
+        "path": "UsageByQuality.NormalImpressions.#text",
+        "platform": "sensor",
+        "unit_of_measurement": "pages",
+        "state_class": "total_increasing",
+        "icon": "mdi:printer"
+      },
+      "draft_impressions": {
+        "path": "UsageByQuality.DraftImpressions.#text",
+        "platform": "sensor",
+        "unit_of_measurement": "pages",
+        "state_class": "total_increasing",
+        "icon": "mdi:printer"
+      },
+      "better_impressions": {
+        "path": "UsageByQuality.BetterImpressions.#text",
+        "platform": "sensor",
+        "unit_of_measurement": "pages",
+        "state_class": "total_increasing",
+        "icon": "mdi:printer"
+      }
+    }
+  },
+  {
     "name": "Scanner",
     "endpoint": "/DevMgmt/ProductUsageDyn.xml",
     "path": "ProductUsageDyn.ScannerEngineSubunit",
