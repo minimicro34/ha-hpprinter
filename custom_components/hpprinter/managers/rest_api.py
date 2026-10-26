@@ -369,9 +369,11 @@ class RestAPIv2:
                 if data_point.get("name") == "Status" and isinstance(data, dict):
                     data = dict(data)
                     if self._last_successful_update is not None:
-                        data["LastSuccessfulUpdate"] = datetime.fromtimestamp(
-                            self._last_successful_update
-                        ).astimezone().isoformat()
+                        data["LastSuccessfulUpdate"] = (
+                            datetime.fromtimestamp(self._last_successful_update)
+                            .astimezone()
+                            .isoformat()
+                        )
 
                 if properties is not None:
                     if isinstance(data, list):
