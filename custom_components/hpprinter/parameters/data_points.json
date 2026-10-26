@@ -46,7 +46,10 @@
       "consumable_life_state_consumable_state": {
         "path": "ConsumableLifeState.ConsumableState",
         "platform": "binary_sensor",
-        "on_values": ["ok", "newGenuineHP"],
+        "on_values": [
+          "ok",
+          "newGenuineHP"
+        ],
         "device_class": "plug"
       },
       "consumable_life_state_brand": {
@@ -376,7 +379,9 @@
       "hardware_config_is_connected": {
         "path": "HardwareConfig.IsConnected",
         "platform": "binary_sensor",
-        "on_values": ["true"],
+        "on_values": [
+          "true"
+        ],
         "device_class": "connectivity"
       }
     }
@@ -393,14 +398,17 @@
       "registration_state": {
         "path": "RegistrationState",
         "platform": "binary_sensor",
-        "on_values": ["registered"],
-        "device_class": "plug",
+        "on_values": [
+          "registered"
+        ],
         "icon": "mdi:cloud-print"
       },
       "cloud_services_switch_status": {
         "path": "CloudServicesSwitch.Status",
         "platform": "binary_sensor",
-        "on_values": ["enabled"],
+        "on_values": [
+          "enabled"
+        ],
         "device_class": "connectivity"
       }
     }
@@ -439,6 +447,12 @@
           "canceljob",
           "inpowersave"
         ]
+      },
+      "last_successful_update": {
+        "path": "LastSuccessfulUpdate",
+        "platform": "sensor",
+        "device_class": "timestamp",
+        "icon": "mdi:clock-check-outline"
       }
     }
   }
