@@ -121,8 +121,11 @@ class RestAPIv2:
             if can_update:
                 data = await self._get_request(endpoint)
 
-                self._raw_data[endpoint] = data
-                self._last_update[endpoint] = now_ts
+                # Preserve the last successful payload for non-status endpoints.
+                # A failed request must not erase counters or consumable data.
+                if data is not None or endpoint == PRODUCT_STATUS_ENDPOINT:
+                    self._raw_data[endpoint] = data
+                    self._last_update[endpoint] = now_ts
 
         except Exception as ex:  # noqa: BLE001 - report device or API failures
             tb = sys.exc_info()[2]
