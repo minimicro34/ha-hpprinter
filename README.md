@@ -6,6 +6,10 @@ This repository is maintained by [@minimicro34](https://github.com/minimicro34),
 
 The v3.0.0 compatibility update is **in development and not yet released**. It targets recent Home Assistant versions and still requires validation on real hardware.
 
+### Contributing
+
+Bug reports and tested pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for reproduction details, CI checks, and compatibility guidelines.
+
 ### Licensing and upstream attribution
 
 This project is based on the original [HP Printer integration by elad-bar](https://github.com/elad-bar/ha-hpprinter), with credit to its author and contributors.
@@ -28,8 +32,8 @@ Configuration support multiple HP Printer devices through Configuration -> Integ
 
 ### Installations via HACS [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 
-- In HACS, look for "HP Printer" and install and restart
-- If integration was not found, please add custom repository `minimicro34/ha-hpprinter` as integration
+- In HACS, add `minimicro34/ha-hpprinter` as a custom integration repository, install **HP Printer**, then restart Home Assistant
+- This fork is not necessarily listed in the default HACS catalog
 - In Settings --> Devices & Services - (Lower Right) "Add Integration"
 
 ### Setup
