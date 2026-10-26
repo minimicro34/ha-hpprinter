@@ -3,8 +3,8 @@ import sys
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_START
-from homeassistant.helpers import config_validation as cv
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 
 from .common.consts import DEFAULT_NAME, DOMAIN
 from .managers.ha_config_manager import HAConfigManager
@@ -48,8 +48,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         initialized = is_initialized
 
-    except Exception as ex:
-        exc_type, exc_obj, tb = sys.exc_info()
+    except Exception as ex:  # noqa: BLE001 - report device or API failures
+        tb = sys.exc_info()[2]
         line_number = tb.tb_lineno
 
         _LOGGER.error(
