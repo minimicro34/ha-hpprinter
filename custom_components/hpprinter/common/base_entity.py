@@ -59,10 +59,10 @@ def _async_handle_device_created(
 
     device_type = device_config.get("device_type")
 
-    entity_descriptions: list[
-        IntegrationEntityDescription
-    ] = coordinator.config_manager.get_entity_descriptions(
-        platform, device_type, device_data
+    entity_descriptions: list[IntegrationEntityDescription] = (
+        coordinator.config_manager.get_entity_descriptions(
+            platform, device_type, device_data
+        )
     )
 
     for entity_description in entity_descriptions:
