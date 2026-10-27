@@ -4,7 +4,7 @@
 
 This repository is maintained by [@minimicro34](https://github.com/minimicro34), based on the original HP Printer integration by [@elad-bar](https://github.com/elad-bar/ha-hpprinter). Thanks to the original author and contributors for their work.
 
-Version 3.0.2 is the latest stable release. Version 3.0.3 is being tested through prereleases, including improved offline handling and polling controls.
+Version 3.0.3 is the current stable release, including resilient offline handling, polling controls, extended LEDM diagnostics and the bundled Lovelace dashboard card.
 
 ### Contributing
 
@@ -56,7 +56,7 @@ It is also possible to change configuration after setting up using integration c
 | Invalid parameters provided                            |
 | HP Printer Embedded Web Server (EWS) not was not found |
 
-## Polling control (v3.0.3 prerelease)
+## Polling control (v3.0.3)
 
 HP Printer supports two Home Assistant actions under the `hpprinter` domain:
 
@@ -80,6 +80,29 @@ actions:
 For printers controlled by a smart plug, keep the HP Printer integration enabled and call `suspend_polling` when power is cut (or port 80 is unavailable); call `force_update` after port 80 becomes reachable. This avoids removing entities from Home Assistant. The IPP integration, if used separately, does not need to change.
 
 Without an automation, a failed status request marks the printer offline and starts exponential retry backoff (10, 20, 40, 80, 160, then up to 300 seconds). A warning is emitted only if the failure persists for 10 seconds; recovery is logged once if that warning was emitted. Previously fetched counter values are retained.
+
+## HP Printer dashboard card (v3.0.3)
+
+The integration bundles a Lovelace card showing printer status, print/copy/scan counters, ink levels and an expandable diagnostic section (Wi-Fi signal, channel and SSID, network packet statistics, memory, power-saving settings and paper tray information when supported by the printer).
+
+Add a **Manual** card to a Home Assistant dashboard with:
+
+```yaml
+type: custom:hpprinter-card
+title: HP Printer
+```
+
+The card discovers HP Printer entities automatically. If you have multiple HP Printer integrations, specify the relevant configuration entry:
+
+```yaml
+type: custom:hpprinter-card
+title: Office printer
+entry_id: YOUR_HPPRINTER_CONFIG_ENTRY_ID
+```
+
+In dashboards using storage-managed resources, the integration registers its versioned card resource automatically. If your dashboard uses YAML-managed resources, register `/hpprinter/hpprinter-card.js` as a JavaScript module in the Lovelace resources configuration. Refresh the browser after upgrading if it still shows the previous card version.
+
+The diagnostic rows depend on the printer model and its LEDM endpoints; unavailable values may appear as a dash. SSIDs supplied in hexadecimal are decoded for display. The card currently uses French labels.
 
 ## Devices
 
