@@ -513,7 +513,9 @@ class RestAPIv2:
                             for item in data
                         ]
 
-                if data_point.get("name") == "Printer Events" and isinstance(data, list):
+                if data_point.get("name") == "Printer Events" and isinstance(
+                    data, list
+                ):
                     # The event log is newest-first on some printers, but order is
                     # not guaranteed. Publish only the highest sequence number.
                     data = max(
