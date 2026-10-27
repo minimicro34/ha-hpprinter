@@ -1,11 +1,11 @@
 import logging
 import sys
 
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_START
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
-import voluptuous as vol
 
 from .common.consts import DEFAULT_NAME, DOMAIN
 from .frontend import async_register_card
