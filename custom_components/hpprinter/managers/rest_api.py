@@ -618,7 +618,6 @@ class RestAPIv2:
         except ClientResponseError as cre:
             if endpoint == PRODUCT_STATUS_ENDPOINT:
                 self._last_status_failure = str(cre)
-            if endpoint == PRODUCT_STATUS_ENDPOINT:
                 return None
             if cre.status == 404:
                 tb = sys.exc_info()[2]
@@ -663,10 +662,10 @@ class RestAPIv2:
 
             if endpoint != PRODUCT_STATUS_ENDPOINT:
                 _LOGGER.error(
-                f"Failed to get {endpoint}, "
-                f"Error: {ex}, "
-                f"Line: {line_number}, "
-                f"Time: {time_taken:.3f}s"
+                    f"Failed to get {endpoint}, "
+                    f"Error: {ex}, "
+                    f"Line: {line_number}, "
+                    f"Time: {time_taken:.3f}s"
                 )
 
         return result
