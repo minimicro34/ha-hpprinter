@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import sys
@@ -108,6 +109,10 @@ class RestAPIv2:
         self._failure_warning_emitted = False
         self._status_failure_count = 0
         self._next_status_retry = 0.0
+        self._is_online = False
+        self._raw_data[PRODUCT_STATUS_ENDPOINT] = PRODUCT_STATUS_OFFLINE_PAYLOAD
+        if self._raw_data:
+            self._extract_data(self._get_devices_data())
         _LOGGER.info("HP Printer %s polling suspended", self.config_data.hostname)
 
     def resume_polling(self):
@@ -207,7 +212,7 @@ class RestAPIv2:
                         if self._status_failure_count == 1:
                             self._cancel_failure_warning()
                             self._failure_warning_emitted = False
-                            self._failure_warning_handle = self._loop.call_later(
+                            self._failure_warning_handle = asyncio.get_running_loop().call_later(
                                 10, self._warn_if_still_offline
                             )
                         # Repeated failures are silent at all log levels.
@@ -300,11 +305,13 @@ class RestAPIv2:
             was_changed = await self._update_product_status_endpoint_data()
             update_counter = 1 if was_changed else 0
 
-            if self._is_online:
+            if self._is_online and not self._polling_suspended:
                 if endpoints is None:
                     endpoints = self._config_manager.endpoints
 
                 for endpoint in endpoints:
+                    if self._polling_suspended:
+                        break
                     was_updated = await self._update_endpoint_data(endpoint)
 
                     if was_updated:
