@@ -42,7 +42,7 @@ class HPPrinterCard extends HTMLElement {
     };
     const displayValue = (raw) => {
       const names = { installed: "Installé", plain: "Papier ordinaire", on: "Activée", off: "Désactivée" };
-      return names[raw] || raw.replace(/^(\\d+)minutes$/, "$1 min").replace(/^(\\d+)hours$/, "$1 h");
+      return names[raw] || raw.replace(/^(\d+)minutes$/, "$1 min").replace(/^(\d+)hours$/, "$1 h");
     };
     const status = value("main", "device_status");
     const printers = [
