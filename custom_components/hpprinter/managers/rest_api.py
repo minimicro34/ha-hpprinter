@@ -573,6 +573,17 @@ class RestAPIv2:
             options = property_details.get("options")
             validation_warning = property_details.get("validationWarning", False)
             value = data_item_flat.get(property_path)
+            if value is None and device_config.get("name") == "WiFi Radio":
+                # LEDM firmware revisions nest radio fields differently.
+                # Restrict fallback matching to the selected Wifi0 adapter.
+                leaf = property_path.rsplit(".", 1)[-1]
+                candidates = [
+                    field_value
+                    for field_path, field_value in data_item_flat.items()
+                    if field_path == leaf or field_path.endswith(f".{leaf}")
+                ]
+                if len(candidates) == 1:
+                    value = candidates[0]
             if value is None and property_path.endswith(".#text"):
                 value = data_item_flat.get(property_path[:-6])
 
