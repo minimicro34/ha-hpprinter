@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+import time
 from datetime import datetime
 
 import xmltodict
@@ -44,6 +45,9 @@ class RestAPIv2:
         self._support_prefetch: bool = False
 
         self._is_online: bool = False
+        self._status_failure_count = 0
+        self._next_status_retry = 0.0
+        self._last_status_failure: str | None = None
         self._cache_store = (
             Store(hass, 1, f"hpprinter.{config_manager.entry_id}.cache")
             if hass is not None
@@ -131,6 +135,12 @@ class RestAPIv2:
             now = datetime.now()
             now_ts = now.timestamp()
 
+            if (
+                endpoint == PRODUCT_STATUS_ENDPOINT
+                and time.monotonic() < self._next_status_retry
+            ):
+                return False
+
             last_update = self._last_update.get(endpoint, 0)
 
             last_update_diff = int(now_ts - last_update)
@@ -140,6 +150,38 @@ class RestAPIv2:
 
             if can_update:
                 data = await self._get_request(endpoint)
+                if endpoint == PRODUCT_STATUS_ENDPOINT:
+                    if data is None:
+                        self._status_failure_count += 1
+                        delay = min(300, 10 * 2 ** min(self._status_failure_count - 1, 5))
+                        self._next_status_retry = time.monotonic() + delay
+                        if self._status_failure_count == 1:
+                            _LOGGER.warning(
+                                "HP Printer %s is unreachable (%s); retrying with "
+                                "exponential backoff (up to 300 seconds)",
+                                self.config_data.hostname,
+                                self._last_status_failure or "no response",
+                            )
+                        else:
+                            _LOGGER.debug(
+                                "HP Printer %s still unreachable (attempt %d); "
+                                "next retry in %d seconds: %s",
+                                self.config_data.hostname,
+                                self._status_failure_count,
+                                delay,
+                                self._last_status_failure,
+                            )
+                    else:
+                        if self._status_failure_count:
+                            _LOGGER.info(
+                                "HP Printer %s is reachable again after %d failed "
+                                "attempts",
+                                self.config_data.hostname,
+                                self._status_failure_count,
+                            )
+                        self._status_failure_count = 0
+                        self._next_status_retry = 0.0
+                        self._last_status_failure = None
 
                 # Preserve the last successful payload for non-status endpoints.
                 # A failed request must not erase counters or consumable data.
@@ -511,6 +553,8 @@ class RestAPIv2:
                 _LOGGER.debug(f"Request to {url} completed, Time: {time_taken:.3f}s")
 
         except ClientResponseError as cre:
+            if endpoint == PRODUCT_STATUS_ENDPOINT:
+                self._last_status_failure = str(cre)
             if cre.status == 404:
                 tb = sys.exc_info()[2]
                 line_number = tb.tb_lineno
@@ -538,16 +582,23 @@ class RestAPIv2:
                 )
 
         except TimeoutError:
-            _LOGGER.error(f"Failed to get {endpoint} due to timeout")
+            if endpoint == PRODUCT_STATUS_ENDPOINT:
+                self._last_status_failure = "request timed out"
+                _LOGGER.debug("Status request timed out for %s", self.config_data.hostname)
+            else:
+                _LOGGER.error(f"Failed to get {endpoint} due to timeout")
 
         except Exception as ex:  # noqa: BLE001 - report device or API failures
+            if endpoint == PRODUCT_STATUS_ENDPOINT:
+                self._last_status_failure = str(ex)
             tb = sys.exc_info()[2]
             line_number = tb.tb_lineno
 
             completed_ts = datetime.now().timestamp()
             time_taken = completed_ts - start_ts
 
-            _LOGGER.error(
+            log = _LOGGER.debug if endpoint == PRODUCT_STATUS_ENDPOINT else _LOGGER.error
+            log(
                 f"Failed to get {endpoint}, "
                 f"Error: {ex}, "
                 f"Line: {line_number}, "
