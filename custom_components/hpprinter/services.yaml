@@ -1,0 +1,11 @@
+force_update:
+  name: Force update
+  description: Immediately refresh HP Printer data, bypassing offline backoff and polling intervals.
+  fields:
+    entry_id:
+      name: Configuration entry ID
+      description: Optional. Leave empty to refresh all loaded HP Printer integrations.
+      required: false
+      example: "01JXXXXXXXXXXXXXXX"
+      selector:
+        text:
