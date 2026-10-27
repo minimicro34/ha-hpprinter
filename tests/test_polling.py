@@ -98,3 +98,51 @@ async def test_inflight_request_does_not_override_suspend(api):
     assert not api.is_online
     assert api._raw_data[PRODUCT_STATUS_ENDPOINT] is not None
     assert api._status_failure_count == 0
+
+
+@pytest.mark.asyncio
+async def test_repeated_suspend_is_idempotent(api, caplog):
+    api._get_request = AsyncMock()
+    with caplog.at_level(logging.INFO):
+        api.suspend_polling()
+        api.suspend_polling()
+    assert sum("polling suspended" in record.message for record in caplog.records) == 1
+    await api.update()
+    api._get_request.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_recovery_before_grace_period_cancels_warning(api, caplog):
+    api._get_request = AsyncMock(side_effect=[None, {"status": "ok"}])
+    with caplog.at_level(logging.INFO):
+        await api._update_product_status_endpoint_data()
+        assert api._failure_warning_handle is not None
+        api.reset_polling_backoff()
+        await api._update_product_status_endpoint_data()
+        assert api._failure_warning_handle is None
+        assert api._status_failure_count == 0
+        assert not api._failure_warning_emitted
+        assert not any(record.levelno >= logging.WARNING for record in caplog.records)
+
+
+@pytest.mark.asyncio
+async def test_backoff_skips_status_request_until_retry(api):
+    api._get_request = AsyncMock(return_value=None)
+    await api._update_product_status_endpoint_data()
+    assert api._next_status_retry > 0
+    await api._update_product_status_endpoint_data()
+    api._get_request.assert_awaited_once()
+    api._cancel_failure_warning()
+
+
+@pytest.mark.asyncio
+async def test_recovery_after_reported_outage_logs_once(api, caplog):
+    api._get_request = AsyncMock(side_effect=[None, {"status": "ok"}, {"status": "ok"}])
+    with caplog.at_level(logging.INFO):
+        await api._update_product_status_endpoint_data()
+        api._warn_if_still_offline()
+        api.reset_polling_backoff()
+        await api._update_product_status_endpoint_data()
+        await api._update_product_status_endpoint_data()
+    assert sum("connection restored" in record.message for record in caplog.records) == 1
+    api._cancel_failure_warning()
