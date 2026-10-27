@@ -249,6 +249,18 @@
         "unit_of_measurement": "pages",
         "state_class": "total_increasing",
         "icon": "mdi:file-document-minus"
+      },
+      "network_impressions": {
+        "path": "NetworkImpressions.#text",
+        "platform": "sensor",
+        "state_class": "total_increasing",
+        "icon": "mdi:lan"
+      },
+      "wireless_network_impressions": {
+        "path": "WirelessNetworkImpressions.#text",
+        "platform": "sensor",
+        "state_class": "total_increasing",
+        "icon": "mdi:wifi"
       }
     }
   },
@@ -416,6 +428,33 @@
           "true"
         ],
         "device_class": "connectivity"
+      },
+      "hardware_config_wifi_network_signal_info_dbm": {
+        "path": "HardwareConfig.WifiNetwork.SignalInfo.dBm",
+        "platform": "sensor",
+        "unit_of_measurement": "dBm",
+        "state_class": "measurement",
+        "icon": "mdi:wifi-strength-4"
+      },
+      "hardware_config_wifi_network_signal_info_signal_strength": {
+        "path": "HardwareConfig.WifiNetwork.SignalInfo.SignalStrength",
+        "platform": "sensor",
+        "icon": "mdi:wifi"
+      },
+      "hardware_config_wifi_network_channel": {
+        "path": "HardwareConfig.WifiNetwork.Channel",
+        "platform": "sensor",
+        "icon": "mdi:wifi"
+      },
+      "hardware_config_wifi_network_ssid": {
+        "path": "HardwareConfig.WifiNetwork.SSID",
+        "platform": "sensor",
+        "icon": "mdi:wifi"
+      },
+      "hardware_config_power": {
+        "path": "HardwareConfig.Power",
+        "platform": "sensor",
+        "icon": "mdi:power"
       }
     }
   },
@@ -486,6 +525,143 @@
         "platform": "sensor",
         "device_class": "timestamp",
         "icon": "mdi:clock-check-outline"
+      }
+    }
+  },
+  {
+    "name": "WiFi Statistics",
+    "endpoint": "/IoMgmt/Adapters/Wifi0/NetworkStats",
+    "path": "NetworkStats",
+    "device_type": "Main",
+    "properties": {
+      "downlink_count": {
+        "path": "WirelessStatistics.DownlinkCount",
+        "platform": "sensor",
+        "state_class": "total_increasing",
+        "icon": "mdi:wifi-alert"
+      },
+      "total_packets_received": {
+        "path": "NetworkStatistics.TotalPacketsReceived",
+        "platform": "sensor",
+        "state_class": "total_increasing",
+        "icon": "mdi:download-network"
+      },
+      "total_packets_transmitted": {
+        "path": "NetworkStatistics.TotalPacketsTransmitted",
+        "platform": "sensor",
+        "state_class": "total_increasing",
+        "icon": "mdi:upload-network"
+      },
+      "bad_packets_received": {
+        "path": "NetworkStatistics.BadPacketsReceived",
+        "platform": "sensor",
+        "state_class": "total_increasing",
+        "icon": "mdi:alert-circle"
+      },
+      "framing_errors_received": {
+        "path": "NetworkStatistics.FramingErrorsReceived",
+        "platform": "sensor",
+        "state_class": "total_increasing",
+        "icon": "mdi:alert-circle"
+      },
+      "transmit_collisions": {
+        "path": "NetworkStatistics.TransmitCollisions",
+        "platform": "sensor",
+        "state_class": "total_increasing",
+        "icon": "mdi:alert-circle"
+      },
+      "unsendable_packets": {
+        "path": "NetworkStatistics.UnsendablePackets",
+        "platform": "sensor",
+        "state_class": "total_increasing",
+        "icon": "mdi:alert-circle"
+      }
+    }
+  },
+  {
+    "name": "Printer Settings",
+    "endpoint": "/DevMgmt/ProductConfigDyn.xml",
+    "path": "ProductConfigDyn.ProductSettings",
+    "device_type": "Main",
+    "properties": {
+      "power_save_timeout": {
+        "path": "PowerSaveTimeout",
+        "platform": "sensor",
+        "icon": "mdi:sleep"
+      },
+      "auto_off_time": {
+        "path": "AutoOffTime",
+        "platform": "sensor",
+        "icon": "mdi:power-sleep"
+      },
+      "power_save": {
+        "path": "PowerSave",
+        "platform": "sensor",
+        "icon": "mdi:leaf"
+      }
+    }
+  },
+  {
+    "name": "Printer Memory",
+    "endpoint": "/DevMgmt/ProductConfigDyn.xml",
+    "path": "ProductConfigDyn.Memory",
+    "device_type": "Main",
+    "properties": {
+      "available_memory": {
+        "path": "AvailableMemory",
+        "platform": "sensor",
+        "icon": "mdi:memory"
+      },
+      "total_memory": {
+        "path": "TotalMemory",
+        "platform": "sensor",
+        "icon": "mdi:memory"
+      }
+    }
+  },
+  {
+    "name": "Paper Tray",
+    "endpoint": "/DevMgmt/MediaHandlingDyn.xml",
+    "path": "MediaHandlingDyn.InputTray",
+    "device_type": "Main",
+    "properties": {
+      "tray_state": {
+        "path": "TrayState",
+        "platform": "sensor",
+        "icon": "mdi:tray"
+      },
+      "media_type": {
+        "path": "MediaType",
+        "platform": "sensor",
+        "icon": "mdi:file"
+      },
+      "media_size": {
+        "path": "MediaSizeName",
+        "platform": "sensor",
+        "icon": "mdi:paper-roll"
+      },
+      "duplex_capability": {
+        "path": "Plex",
+        "platform": "sensor",
+        "icon": "mdi:printer"
+      }
+    }
+  },
+  {
+    "name": "Printer Events",
+    "endpoint": "/DevMgmt/ProductLogsDyn.xml",
+    "path": "ProductLogsDyn.EventLog.Event",
+    "device_type": "Main",
+    "properties": {
+      "event_code": {
+        "path": "EventCode",
+        "platform": "sensor",
+        "icon": "mdi:alert-circle-outline"
+      },
+      "event_sequence": {
+        "path": "SequenceNumber",
+        "platform": "sensor",
+        "icon": "mdi:counter"
       }
     }
   }
