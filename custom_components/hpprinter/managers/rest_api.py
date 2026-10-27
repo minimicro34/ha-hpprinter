@@ -531,7 +531,7 @@ class RestAPIv2:
                             for item in data
                             if isinstance(item, dict)
                             and all(
-                                item.get(key) == expected
+                                flatten(item, ".").get(key) == expected
                                 for key, expected in item_filter.items()
                             )
                         ]
@@ -539,7 +539,7 @@ class RestAPIv2:
                         data = (
                             data
                             if all(
-                                data.get(key) == expected
+                                flatten(data, ".").get(key) == expected
                                 for key, expected in item_filter.items()
                             )
                             else None
