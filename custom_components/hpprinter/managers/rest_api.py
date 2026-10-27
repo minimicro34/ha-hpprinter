@@ -91,7 +91,12 @@ class RestAPIv2:
 
     def _warn_if_still_offline(self):
         self._failure_warning_handle = None
-        if self._polling_suspended or not self._status_failure_count or self._is_online:
+        if (
+            self._polling_suspended
+            or not self._status_failure_count
+            or self._is_online
+            or self._failure_warning_emitted
+        ):
             return
         self._failure_warning_emitted = True
         _LOGGER.warning(
