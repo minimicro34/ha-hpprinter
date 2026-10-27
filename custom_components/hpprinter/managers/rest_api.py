@@ -52,6 +52,7 @@ class RestAPIv2:
         self._failure_warning_emitted = False
         self._next_status_retry = 0.0
         self._last_status_failure: str | None = None
+        self._secondary_timeout_counts: dict[str, int] = {}
         self._cache_store = (
             Store(hass, 1, f"hpprinter.{config_manager.entry_id}.cache")
             if hass is not None
@@ -619,6 +620,7 @@ class RestAPIv2:
                             if ignored_key in result[root_key]:
                                 del result[root_key][ignored_key]
 
+                self._secondary_timeout_counts.pop(endpoint, None)
                 completed_ts = datetime.now().timestamp()
                 time_taken = completed_ts - start_ts
                 _LOGGER.debug(f"Request to {url} completed, Time: {time_taken:.3f}s")
@@ -657,7 +659,15 @@ class RestAPIv2:
             if endpoint == PRODUCT_STATUS_ENDPOINT:
                 self._last_status_failure = "request timed out"
             else:
-                _LOGGER.debug("Failed to get %s due to timeout", endpoint)
+                failures = self._secondary_timeout_counts.get(endpoint, 0) + 1
+                self._secondary_timeout_counts[endpoint] = failures
+                if failures == 3:
+                    _LOGGER.warning(
+                        "HP Printer endpoint %s timed out 3 consecutive times",
+                        endpoint,
+                    )
+                else:
+                    _LOGGER.debug("Failed to get %s due to timeout", endpoint)
 
         except Exception as ex:  # noqa: BLE001 - report device or API failures
             if endpoint == PRODUCT_STATUS_ENDPOINT:
