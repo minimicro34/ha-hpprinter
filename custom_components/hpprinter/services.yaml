@@ -9,3 +9,15 @@ force_update:
       example: "01JXXXXXXXXXXXXXXX"
       selector:
         text:
+
+suspend_polling:
+  name: Suspend polling
+  description: Stop HTTP polling immediately while preserving HP Printer entities and cached counters.
+  fields:
+    entry_id:
+      name: Configuration entry ID
+      description: Optional. Leave empty to suspend all loaded HP Printer integrations.
+      required: false
+      example: "01JXXXXXXXXXXXXXXX"
+      selector:
+        text:
