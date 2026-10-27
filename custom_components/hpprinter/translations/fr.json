@@ -32,6 +32,9 @@
       },
       "registration_state": {
         "name": "ePrint enregistré"
+      },
+      "wifi_connected": {
+        "name": "Connexion Wi-Fi"
       }
     },
     "sensor": {
@@ -192,6 +195,21 @@
       },
       "duplex_capability": {
         "name": "Capacité recto verso"
+      },
+      "wifi_signal_dbm": {
+        "name": "Signal Wi-Fi (dBm)"
+      },
+      "wifi_signal_strength": {
+        "name": "Intensité Wi-Fi HP"
+      },
+      "wifi_channel": {
+        "name": "Canal Wi-Fi"
+      },
+      "wifi_ssid": {
+        "name": "SSID Wi-Fi"
+      },
+      "wifi_power": {
+        "name": "Alimentation Wi-Fi"
       }
     }
   },

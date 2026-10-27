@@ -430,38 +430,6 @@
           "true"
         ],
         "device_class": "connectivity"
-      },
-      "hardware_config_wifi_network_signal_info_dbm": {
-        "path": "HardwareConfig.WifiNetwork.SignalInfo.dBm",
-        "platform": "sensor",
-        "unit_of_measurement": "dBm",
-        "state_class": "measurement",
-        "icon": "mdi:wifi-strength-4",
-        "entity_category": "diagnostic"
-      },
-      "hardware_config_wifi_network_signal_info_signal_strength": {
-        "path": "HardwareConfig.WifiNetwork.SignalInfo.SignalStrength",
-        "platform": "sensor",
-        "icon": "mdi:wifi",
-        "entity_category": "diagnostic"
-      },
-      "hardware_config_wifi_network_channel": {
-        "path": "HardwareConfig.WifiNetwork.Channel",
-        "platform": "sensor",
-        "icon": "mdi:wifi",
-        "entity_category": "diagnostic"
-      },
-      "hardware_config_wifi_network_ssid": {
-        "path": "HardwareConfig.WifiNetwork.SSID",
-        "platform": "sensor",
-        "icon": "mdi:wifi",
-        "entity_category": "diagnostic"
-      },
-      "hardware_config_power": {
-        "path": "HardwareConfig.Power",
-        "platform": "sensor",
-        "icon": "mdi:power",
-        "entity_category": "diagnostic"
       }
     }
   },
@@ -686,6 +654,58 @@
         "path": "SequenceNumber",
         "platform": "sensor",
         "icon": "mdi:counter",
+        "entity_category": "diagnostic"
+      }
+    }
+  },
+  {
+    "name": "WiFi Radio",
+    "endpoint": "/IoMgmt/Adapters",
+    "path": "Adapters.Adapter",
+    "device_type": "Main",
+    "filter": {
+      "HardwareConfig.Name": "Wifi0"
+    },
+    "properties": {
+      "wifi_signal_dbm": {
+        "path": "HardwareConfig.WifiNetwork.SignalInfo.dBm",
+        "platform": "sensor",
+        "unit_of_measurement": "dBm",
+        "state_class": "measurement",
+        "icon": "mdi:wifi-strength-4",
+        "entity_category": "diagnostic"
+      },
+      "wifi_signal_strength": {
+        "path": "HardwareConfig.WifiNetwork.SignalInfo.SignalStrength",
+        "platform": "sensor",
+        "icon": "mdi:wifi",
+        "entity_category": "diagnostic"
+      },
+      "wifi_channel": {
+        "path": "HardwareConfig.WifiNetwork.Channel",
+        "platform": "sensor",
+        "icon": "mdi:wifi",
+        "entity_category": "diagnostic"
+      },
+      "wifi_ssid": {
+        "path": "HardwareConfig.WifiNetwork.SSID",
+        "platform": "sensor",
+        "icon": "mdi:wifi",
+        "entity_category": "diagnostic"
+      },
+      "wifi_power": {
+        "path": "HardwareConfig.Power",
+        "platform": "sensor",
+        "icon": "mdi:power",
+        "entity_category": "diagnostic"
+      },
+      "wifi_connected": {
+        "path": "HardwareConfig.IsConnected",
+        "platform": "binary_sensor",
+        "on_values": [
+          "true"
+        ],
+        "device_class": "connectivity",
         "entity_category": "diagnostic"
       }
     }

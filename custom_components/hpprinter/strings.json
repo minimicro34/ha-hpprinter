@@ -32,6 +32,9 @@
       },
       "registration_state": {
         "name": "ePrint Registered"
+      },
+      "wifi_connected": {
+        "name": "Wi-Fi connection"
       }
     },
     "sensor": {
@@ -189,6 +192,21 @@
       },
       "event_sequence": {
         "name": "Latest event sequence"
+      },
+      "wifi_signal_dbm": {
+        "name": "Wi-Fi signal (dBm)"
+      },
+      "wifi_signal_strength": {
+        "name": "Wi-Fi signal strength (HP)"
+      },
+      "wifi_channel": {
+        "name": "Wi-Fi channel"
+      },
+      "wifi_ssid": {
+        "name": "Wi-Fi SSID"
+      },
+      "wifi_power": {
+        "name": "Wi-Fi power"
       }
     }
   },
