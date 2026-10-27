@@ -37,8 +37,19 @@ class HPPrinterCard extends HTMLElement {
       ["Copies", value("copy", "total_impressions")],
       ["Scans", value("scanner", "scan_images")],
     ];
+    const formatTimestamp = (raw) => {
+      if (raw === "—") return raw;
+      const date = new Date(raw);
+      if (Number.isNaN(date.getTime())) return raw;
+      const locale = this._hass.locale?.language || navigator.language || "fr-FR";
+      return new Intl.DateTimeFormat(locale, {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hourCycle: "h23",
+      }).format(date);
+    };
     const diagnostics = [
-      ["Dernière synchronisation", value("main", "last_successful_update")],
+      ["Dernière synchronisation", formatTimestamp(value("main", "last_successful_update"))],
       ["Acquisitions pour copie (vitre)", value("copy", "flatbed_images")],
       ["Copies couleur", value("copy", "color_impressions")],
       ["Copies noir et blanc", value("copy", "monochrome_impressions")],
