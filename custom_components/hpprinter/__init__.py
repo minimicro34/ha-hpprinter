@@ -3,8 +3,9 @@ import sys
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_START
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
+import voluptuous as vol
 
 from .common.consts import DEFAULT_NAME, DOMAIN
 from .frontend import async_register_card
@@ -14,10 +15,34 @@ from .managers.ha_coordinator import HACoordinator
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+FORCE_UPDATE_SERVICE = "force_update"
+FORCE_UPDATE_SCHEMA = vol.Schema({vol.Optional("entry_id"): cv.string})
 
 
 async def async_setup(hass, _config):
     await async_register_card(hass)
+
+    async def async_force_update(call: ServiceCall) -> None:
+        """Force immediate polling, bypassing backoff and endpoint intervals."""
+        coordinators = hass.data.get(DOMAIN, {})
+        entry_id = call.data.get("entry_id")
+        targets = (
+            [coordinators[entry_id]]
+            if entry_id in coordinators
+            else list(coordinators.values()) if entry_id is None else []
+        )
+        if entry_id is not None and not targets:
+            raise ValueError(f"HP Printer config entry not loaded: {entry_id}")
+        for coordinator in targets:
+            coordinator.api.reset_polling_backoff()
+            await coordinator.async_request_refresh()
+
+    hass.services.async_register(
+        DOMAIN,
+        FORCE_UPDATE_SERVICE,
+        async_force_update,
+        schema=FORCE_UPDATE_SCHEMA,
+    )
     return True
 
 
