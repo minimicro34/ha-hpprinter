@@ -162,15 +162,7 @@ class RestAPIv2:
                                 self.config_data.hostname,
                                 self._last_status_failure or "no response",
                             )
-                        else:
-                            _LOGGER.debug(
-                                "HP Printer %s still unreachable (attempt %d); "
-                                "next retry in %d seconds: %s",
-                                self.config_data.hostname,
-                                self._status_failure_count,
-                                delay,
-                                self._last_status_failure,
-                            )
+                        # Expected repeated failures remain silent, including at DEBUG.
                     else:
                         if self._status_failure_count:
                             _LOGGER.info(
@@ -243,6 +235,11 @@ class RestAPIv2:
             )
 
         return was_changed
+
+    def reset_polling_backoff(self):
+        """Allow the next update to probe the printer and refresh all endpoints."""
+        self._next_status_retry = 0.0
+        self._last_update.clear()
 
     async def update(self, endpoints: list[str] | None = None):
         try:
