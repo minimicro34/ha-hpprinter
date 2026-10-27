@@ -117,6 +117,27 @@
       },
       "last_successful_update": {
         "name": "Dernière synchronisation réussie"
+      },
+      "network_impressions": {
+        "name": "Impressions réseau"
+      },
+      "wireless_network_impressions": {
+        "name": "Impressions Wi-Fi"
+      },
+      "downlink_count": {
+        "name": "Pertes de liaison Wi-Fi"
+      },
+      "available_memory": {
+        "name": "Mémoire disponible"
+      },
+      "total_memory": {
+        "name": "Mémoire totale"
+      },
+      "event_code": {
+        "name": "Dernier code événement"
+      },
+      "event_sequence": {
+        "name": "Séquence du dernier événement"
       }
     }
   },
