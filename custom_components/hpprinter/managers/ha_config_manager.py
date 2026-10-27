@@ -9,7 +9,7 @@ from homeassistant.config_entries import STORAGE_VERSION, ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import translation
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.json import JSONEncoder
 from homeassistant.helpers.storage import Store
 
@@ -289,6 +289,7 @@ class HAConfigManager:
                     exclude = property_data.get("exclude")
                     device_class = property_data.get("device_class")
                     icon = property_data.get("icon")
+                    entity_category = EntityCategory.DIAGNOSTIC if property_data.get("entity_category") == "diagnostic" else None
                     translation_key = property_key
 
                     if property_platform == str(Platform.BINARY_SENSOR):
@@ -305,6 +306,7 @@ class HAConfigManager:
                             on_values=on_values,
                             device_class=device_class,
                             icon=icon,
+                            entity_category=entity_category,
                             translation_key=translation_key,
                         )
 
@@ -323,6 +325,7 @@ class HAConfigManager:
                             native_unit_of_measurement=unit_of_measurement,
                             device_class=device_class,
                             icon=icon,
+                            entity_category=entity_category,
                             translation_key=translation_key,
                             options=options,
                             state_class=state_class,
