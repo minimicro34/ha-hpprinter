@@ -289,7 +289,11 @@ class HAConfigManager:
                     exclude = property_data.get("exclude")
                     device_class = property_data.get("device_class")
                     icon = property_data.get("icon")
-                    entity_category = EntityCategory.DIAGNOSTIC if property_data.get("entity_category") == "diagnostic" else None
+                    entity_category = (
+                        EntityCategory.DIAGNOSTIC
+                        if property_data.get("entity_category") == "diagnostic"
+                        else None
+                    )
                     translation_key = property_key
 
                     if property_platform == str(Platform.BINARY_SENSOR):
