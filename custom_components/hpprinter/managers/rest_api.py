@@ -217,8 +217,10 @@ class RestAPIv2:
                         if self._status_failure_count == 1:
                             self._cancel_failure_warning()
                             self._failure_warning_emitted = False
-                            self._failure_warning_handle = asyncio.get_running_loop().call_later(
-                                10, self._warn_if_still_offline
+                            self._failure_warning_handle = (
+                                asyncio.get_running_loop().call_later(
+                                    10, self._warn_if_still_offline
+                                )
                             )
                         # Repeated failures are silent at all log levels.
                     else:
