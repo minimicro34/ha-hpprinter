@@ -618,6 +618,8 @@ class RestAPIv2:
         except ClientResponseError as cre:
             if endpoint == PRODUCT_STATUS_ENDPOINT:
                 self._last_status_failure = str(cre)
+            if endpoint == PRODUCT_STATUS_ENDPOINT:
+                return None
             if cre.status == 404:
                 tb = sys.exc_info()[2]
                 line_number = tb.tb_lineno
@@ -647,9 +649,6 @@ class RestAPIv2:
         except TimeoutError:
             if endpoint == PRODUCT_STATUS_ENDPOINT:
                 self._last_status_failure = "request timed out"
-                _LOGGER.debug(
-                    "Status request timed out for %s", self.config_data.hostname
-                )
             else:
                 _LOGGER.error(f"Failed to get {endpoint} due to timeout")
 
@@ -662,15 +661,13 @@ class RestAPIv2:
             completed_ts = datetime.now().timestamp()
             time_taken = completed_ts - start_ts
 
-            log = (
-                _LOGGER.debug if endpoint == PRODUCT_STATUS_ENDPOINT else _LOGGER.error
-            )
-            log(
+            if endpoint != PRODUCT_STATUS_ENDPOINT:
+                _LOGGER.error(
                 f"Failed to get {endpoint}, "
                 f"Error: {ex}, "
                 f"Line: {line_number}, "
                 f"Time: {time_taken:.3f}s"
-            )
+                )
 
         return result
 
