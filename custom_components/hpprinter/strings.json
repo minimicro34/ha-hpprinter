@@ -114,6 +114,81 @@
           "inpowersave": "Idle",
           "off": "Off"
         }
+      },
+      "hardware_config_wifi_network_signal_info_dbm": {
+        "name": "Wi-Fi signal (dBm)"
+      },
+      "hardware_config_wifi_network_signal_info_signal_strength": {
+        "name": "Wi-Fi signal strength (HP)"
+      },
+      "hardware_config_wifi_network_channel": {
+        "name": "Wi-Fi channel"
+      },
+      "hardware_config_wifi_network_ssid": {
+        "name": "Wi-Fi SSID (hex)"
+      },
+      "hardware_config_power": {
+        "name": "Adapter power"
+      },
+      "total_packets_received": {
+        "name": "Packets received"
+      },
+      "total_packets_transmitted": {
+        "name": "Packets transmitted"
+      },
+      "bad_packets_received": {
+        "name": "Bad packets received"
+      },
+      "framing_errors_received": {
+        "name": "Framing errors"
+      },
+      "transmit_collisions": {
+        "name": "Transmit collisions"
+      },
+      "unsendable_packets": {
+        "name": "Unsendable packets"
+      },
+      "power_save_timeout": {
+        "name": "Power-save timeout"
+      },
+      "auto_off_time": {
+        "name": "Auto-off timeout"
+      },
+      "power_save": {
+        "name": "Power saving"
+      },
+      "tray_state": {
+        "name": "Tray state"
+      },
+      "media_type": {
+        "name": "Media type"
+      },
+      "media_size": {
+        "name": "Media size"
+      },
+      "duplex_capability": {
+        "name": "Duplex capability"
+      },
+      "network_impressions": {
+        "name": "Network impressions"
+      },
+      "wireless_network_impressions": {
+        "name": "Wireless impressions"
+      },
+      "downlink_count": {
+        "name": "Wireless downlink count"
+      },
+      "available_memory": {
+        "name": "Available memory"
+      },
+      "total_memory": {
+        "name": "Total memory"
+      },
+      "event_code": {
+        "name": "Latest event code"
+      },
+      "event_sequence": {
+        "name": "Latest event sequence"
       }
     }
   },
