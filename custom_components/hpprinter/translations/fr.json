@@ -32,6 +32,9 @@
       },
       "registration_state": {
         "name": "ePrint enregistré"
+      },
+      "wifi_connected": {
+        "name": "Connexion Wi-Fi"
       }
     },
     "sensor": {
@@ -117,6 +120,96 @@
       },
       "last_successful_update": {
         "name": "Dernière synchronisation réussie"
+      },
+      "network_impressions": {
+        "name": "Impressions réseau"
+      },
+      "wireless_network_impressions": {
+        "name": "Impressions Wi-Fi"
+      },
+      "downlink_count": {
+        "name": "Pertes de liaison Wi-Fi"
+      },
+      "available_memory": {
+        "name": "Mémoire disponible"
+      },
+      "total_memory": {
+        "name": "Mémoire totale"
+      },
+      "event_code": {
+        "name": "Dernier code événement"
+      },
+      "event_sequence": {
+        "name": "Séquence du dernier événement"
+      },
+      "hardware_config_wifi_network_signal_info_dbm": {
+        "name": "Signal Wi-Fi (dBm)"
+      },
+      "hardware_config_wifi_network_signal_info_signal_strength": {
+        "name": "Intensité Wi-Fi HP"
+      },
+      "hardware_config_wifi_network_channel": {
+        "name": "Canal Wi-Fi"
+      },
+      "hardware_config_wifi_network_ssid": {
+        "name": "SSID Wi-Fi (hex)"
+      },
+      "hardware_config_power": {
+        "name": "Alimentation interface"
+      },
+      "total_packets_received": {
+        "name": "Paquets reçus"
+      },
+      "total_packets_transmitted": {
+        "name": "Paquets transmis"
+      },
+      "bad_packets_received": {
+        "name": "Paquets erronés reçus"
+      },
+      "framing_errors_received": {
+        "name": "Erreurs de trame"
+      },
+      "transmit_collisions": {
+        "name": "Collisions émission"
+      },
+      "unsendable_packets": {
+        "name": "Paquets non transmissibles"
+      },
+      "power_save_timeout": {
+        "name": "Délai de veille"
+      },
+      "auto_off_time": {
+        "name": "Extinction automatique"
+      },
+      "power_save": {
+        "name": "Économie d'énergie"
+      },
+      "tray_state": {
+        "name": "État du bac"
+      },
+      "media_type": {
+        "name": "Type de papier"
+      },
+      "media_size": {
+        "name": "Format de papier"
+      },
+      "duplex_capability": {
+        "name": "Capacité recto verso"
+      },
+      "wifi_signal_dbm": {
+        "name": "Signal Wi-Fi (dBm)"
+      },
+      "wifi_signal_strength": {
+        "name": "Intensité Wi-Fi HP"
+      },
+      "wifi_channel": {
+        "name": "Canal Wi-Fi"
+      },
+      "wifi_ssid": {
+        "name": "SSID Wi-Fi"
+      },
+      "wifi_power": {
+        "name": "Alimentation Wi-Fi"
       }
     }
   },

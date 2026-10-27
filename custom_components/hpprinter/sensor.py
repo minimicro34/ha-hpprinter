@@ -1,7 +1,11 @@
 import logging
 from datetime import datetime
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, Platform
 from homeassistant.core import HomeAssistant
@@ -54,6 +58,13 @@ class HASensorEntity(BaseEntity, SensorEntity):
 
             elif self.native_unit_of_measurement in NUMERIC_UNITS_OF_MEASUREMENT:
                 state = int(state)
+
+            elif self.state_class in (
+                SensorStateClass.MEASUREMENT,
+                SensorStateClass.TOTAL,
+                SensorStateClass.TOTAL_INCREASING,
+            ):
+                state = float(state) if "." in str(state) else int(state)
 
             if self.device_class == SensorDeviceClass.DATE:
                 state = datetime.fromisoformat(state)

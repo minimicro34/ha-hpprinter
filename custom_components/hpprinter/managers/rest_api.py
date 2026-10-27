@@ -52,6 +52,7 @@ class RestAPIv2:
         self._failure_warning_emitted = False
         self._next_status_retry = 0.0
         self._last_status_failure: str | None = None
+        self._secondary_timeout_counts: dict[str, int] = {}
         self._cache_store = (
             Store(hass, 1, f"hpprinter.{config_manager.entry_id}.cache")
             if hass is not None
@@ -512,6 +513,16 @@ class RestAPIv2:
                             for item in data
                         ]
 
+                if data_point.get("name") == "Printer Events" and isinstance(
+                    data, list
+                ):
+                    # The event log is newest-first on some printers, but order is
+                    # not guaranteed. Publish only the highest sequence number.
+                    data = max(
+                        (event for event in data if isinstance(event, dict)),
+                        key=lambda event: int(event.get("SequenceNumber", 0)),
+                        default=None,
+                    )
                 if properties is not None:
                     item_filter = data_point.get("filter", {})
                     if isinstance(data, list) and item_filter:
@@ -520,7 +531,7 @@ class RestAPIv2:
                             for item in data
                             if isinstance(item, dict)
                             and all(
-                                item.get(key) == expected
+                                flatten(item, ".").get(key) == expected
                                 for key, expected in item_filter.items()
                             )
                         ]
@@ -528,7 +539,7 @@ class RestAPIv2:
                         data = (
                             data
                             if all(
-                                data.get(key) == expected
+                                flatten(data, ".").get(key) == expected
                                 for key, expected in item_filter.items()
                             )
                             else None
@@ -562,6 +573,17 @@ class RestAPIv2:
             options = property_details.get("options")
             validation_warning = property_details.get("validationWarning", False)
             value = data_item_flat.get(property_path)
+            if value is None and device_config.get("name") == "WiFi Radio":
+                # LEDM firmware revisions nest radio fields differently.
+                # Restrict fallback matching to the selected Wifi0 adapter.
+                leaf = property_path.rsplit(".", 1)[-1]
+                candidates = [
+                    field_value
+                    for field_path, field_value in data_item_flat.items()
+                    if field_path == leaf or field_path.endswith(f".{leaf}")
+                ]
+                if len(candidates) == 1:
+                    value = candidates[0]
             if value is None and property_path.endswith(".#text"):
                 value = data_item_flat.get(property_path[:-6])
 
@@ -611,6 +633,7 @@ class RestAPIv2:
                             if ignored_key in result[root_key]:
                                 del result[root_key][ignored_key]
 
+                self._secondary_timeout_counts.pop(endpoint, None)
                 completed_ts = datetime.now().timestamp()
                 time_taken = completed_ts - start_ts
                 _LOGGER.debug(f"Request to {url} completed, Time: {time_taken:.3f}s")
@@ -649,7 +672,15 @@ class RestAPIv2:
             if endpoint == PRODUCT_STATUS_ENDPOINT:
                 self._last_status_failure = "request timed out"
             else:
-                _LOGGER.error(f"Failed to get {endpoint} due to timeout")
+                failures = self._secondary_timeout_counts.get(endpoint, 0) + 1
+                self._secondary_timeout_counts[endpoint] = failures
+                if failures == 3:
+                    _LOGGER.warning(
+                        "HP Printer endpoint %s timed out 3 consecutive times",
+                        endpoint,
+                    )
+                else:
+                    _LOGGER.debug("Failed to get %s due to timeout", endpoint)
 
         except Exception as ex:  # noqa: BLE001 - report device or API failures
             if endpoint == PRODUCT_STATUS_ENDPOINT:
