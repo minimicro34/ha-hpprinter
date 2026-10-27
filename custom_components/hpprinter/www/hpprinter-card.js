@@ -31,6 +31,19 @@ class HPPrinterCard extends HTMLElement {
       const state = find(device, key);
       return state && !["unknown", "unavailable"].includes(state.state) ? state.state : "—";
     };
+    const decodeSSID = (raw) => {
+      if (!/^(?:[0-9a-f]{2})+$/i.test(raw)) return raw;
+      try { return new TextDecoder().decode(Uint8Array.from(raw.match(/.{2}/g).map((b) => parseInt(b, 16)))); }
+      catch { return raw; }
+    };
+    const wifiConnected = () => {
+      const state = find("main", "wifi_connected", "binary_sensor");
+      return state ? (state.state === "on" ? "Connectée" : state.state === "off" ? "Déconnectée" : "—") : "—";
+    };
+    const displayValue = (raw) => {
+      const names = { installed: "Installé", plain: "Papier ordinaire", on: "Activée", off: "Désactivée" };
+      return names[raw] || raw.replace(/^(\\d+)minutes$/, "$1 min").replace(/^(\\d+)hours$/, "$1 h");
+    };
     const status = value("main", "device_status");
     const printers = [
       ["Impressions", value("printer", "total_impressions")],
@@ -64,11 +77,11 @@ class HPPrinterCard extends HTMLElement {
       ["Incidents d’alimentation papier", value("printer", "mispick_events")],
       ["Impressions réseau", value("printer", "network_impressions")],
       ["Impressions Wi-Fi", value("printer", "wireless_network_impressions")],
-      ["Signal Wi-Fi (dBm)", value("adapter_wifi0", "hardware_config_wifi_network_signal_info_dbm")],
-      ["Intensité Wi-Fi HP", value("adapter_wifi0", "hardware_config_wifi_network_signal_info_signal_strength")],
-      ["Canal Wi-Fi", value("adapter_wifi0", "hardware_config_wifi_network_channel")],
-      ["SSID Wi-Fi (hex)", value("adapter_wifi0", "hardware_config_wifi_network_ssid")],
-      ["Interface Wi-Fi", value("adapter_wifi0", "hardware_config_is_connected")],
+      ["Signal Wi-Fi (dBm)", value("main", "wifi_signal_dbm")],
+      ["Intensité Wi-Fi HP", value("main", "wifi_signal_strength")],
+      ["Canal Wi-Fi", value("main", "wifi_channel")],
+      ["SSID Wi-Fi", decodeSSID(value("main", "wifi_ssid"))],
+      ["Interface Wi-Fi", wifiConnected()],
       ["Pertes de liaison (brut)", value("main", "downlink_count")],
       ["Paquets reçus", value("main", "total_packets_received")],
       ["Paquets transmis", value("main", "total_packets_transmitted")],
@@ -76,13 +89,13 @@ class HPPrinterCard extends HTMLElement {
       ["Erreurs de trame", value("main", "framing_errors_received")],
       ["Collisions émission", value("main", "transmit_collisions")],
       ["Paquets impossibles à envoyer", value("main", "unsendable_packets")],
-      ["Délai de veille", value("main", "power_save_timeout")],
-      ["Extinction automatique", value("main", "auto_off_time")],
-      ["Économie d'énergie", value("main", "power_save")],
+      ["Délai de veille", displayValue(value("main", "power_save_timeout"))],
+      ["Extinction automatique", displayValue(value("main", "auto_off_time"))],
+      ["Économie d'énergie", displayValue(value("main", "power_save"))],
       ["Mémoire disponible", value("main", "available_memory")],
       ["Mémoire totale", value("main", "total_memory")],
-      ["État du bac", value("main", "tray_state")],
-      ["Type de papier", value("main", "media_type")],
+      ["État du bac", displayValue(value("main", "tray_state"))],
+      ["Type de papier", displayValue(value("main", "media_type"))],
       ["Format de papier", value("main", "media_size")],
       ["Recto verso matériel", value("main", "duplex_capability")],
       ["Dernier code événement", value("main", "event_code")],
