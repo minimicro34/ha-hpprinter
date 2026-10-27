@@ -22,6 +22,17 @@ Do not publish passwords, access tokens, or private printer configuration.
 - Test with a real printer where possible, including offline/online recovery and existing entity history.
 - Add user-facing changes to `CHANGELOG.md`.
 
+## Dashboard card contributions
+
+The bundled Lovelace card lives in `custom_components/hpprinter/www/hpprinter-card.js`. Its resource is registered by the integration for storage-managed dashboards; keep the registration and versioned URL compatible with upgrades.
+
+- Use entity registry unique IDs rather than hardcoded entity IDs; respect the selected `entry_id` when multiple printers are configured.
+- Preserve existing card configuration (`type: custom:hpprinter-card`, optional `title` and `entry_id`).
+- Handle missing, unknown, unavailable and disabled entities without breaking rendering.
+- Escape printer-provided values before inserting them into HTML and do not expose credentials or private diagnostic payloads.
+- Check the card with a real printer and refresh the frontend resource after changing JavaScript.
+- Document user-visible card changes in the README and changelog.
+
 ## Attribution and licensing
 
 This is a maintenance fork of the original integration by [elad-bar](https://github.com/elad-bar/ha-hpprinter). Original upstream code was published without an explicit license. GPL-3.0 is intended for original contributions to this fork from v3.0.0 onward and does not retroactively license upstream code. Contributors must have the right to submit their changes.
