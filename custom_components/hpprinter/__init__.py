@@ -42,6 +42,7 @@ async def async_setup(hass, _config):
         """Suspend HTTP polling while keeping the integration loaded."""
         for coordinator in get_targets(call):
             coordinator.api.suspend_polling()
+            coordinator.async_set_updated_data(coordinator.api.data)
 
     hass.services.async_register(
         DOMAIN, FORCE_UPDATE_SERVICE, async_force_update, schema=TARGET_SCHEMA
