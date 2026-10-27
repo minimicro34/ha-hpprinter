@@ -46,6 +46,9 @@ class RestAPIv2:
 
         self._is_online: bool = False
         self._status_failure_count = 0
+        self._polling_suspended = False
+        self._failure_warning_handle = None
+        self._failure_warning_emitted = False
         self._next_status_retry = 0.0
         self._last_status_failure: str | None = None
         self._cache_store = (
@@ -80,7 +83,46 @@ class RestAPIv2:
     def is_online(self) -> bool:
         return self._is_online
 
+    def _cancel_failure_warning(self):
+        if self._failure_warning_handle is not None:
+            self._failure_warning_handle.cancel()
+            self._failure_warning_handle = None
+
+    def _warn_if_still_offline(self):
+        self._failure_warning_handle = None
+        if self._polling_suspended or not self._status_failure_count or self._is_online:
+            return
+        self._failure_warning_emitted = True
+        _LOGGER.warning(
+            "HP Printer %s unreachable (%s); exponential backoff active",
+            self.config_data.hostname,
+            self._last_status_failure or "no response",
+        )
+
+    def suspend_polling(self):
+        """Stop network polling without unloading entities or cached values."""
+        if self._polling_suspended:
+            return
+        self._polling_suspended = True
+        self._cancel_failure_warning()
+        self._failure_warning_emitted = False
+        self._status_failure_count = 0
+        self._next_status_retry = 0.0
+        _LOGGER.info("HP Printer %s polling suspended", self.config_data.hostname)
+
+    def resume_polling(self):
+        """Resume polling and allow an immediate full refresh."""
+        was_suspended = self._polling_suspended
+        self._polling_suspended = False
+        self.reset_polling_backoff()
+        if was_suspended:
+            _LOGGER.info(
+                "HP Printer %s polling resumed; forcing refresh",
+                self.config_data.hostname,
+            )
+
     async def terminate(self):
+        self._cancel_failure_warning()
         _LOGGER.info("Terminating session to HP Printer EWS")
 
         if self._session is not None:
@@ -135,6 +177,9 @@ class RestAPIv2:
             now = datetime.now()
             now_ts = now.timestamp()
 
+            if self._polling_suspended:
+                return False
+
             if (
                 endpoint == PRODUCT_STATUS_ENDPOINT
                 and time.monotonic() < self._next_status_retry
@@ -150,27 +195,29 @@ class RestAPIv2:
 
             if can_update:
                 data = await self._get_request(endpoint)
+                if self._polling_suspended:
+                    return False
                 if endpoint == PRODUCT_STATUS_ENDPOINT:
                     if data is None:
                         self._status_failure_count += 1
                         delay = min(300, 10 * 2 ** min(self._status_failure_count - 1, 5))
                         self._next_status_retry = time.monotonic() + delay
                         if self._status_failure_count == 1:
-                            _LOGGER.warning(
-                                "HP Printer %s is unreachable (%s); retrying with "
-                                "exponential backoff (up to 300 seconds)",
-                                self.config_data.hostname,
-                                self._last_status_failure or "no response",
+                            self._cancel_failure_warning()
+                            self._failure_warning_emitted = False
+                            self._failure_warning_handle = self._loop.call_later(
+                                10, self._warn_if_still_offline
                             )
-                        # Expected repeated failures remain silent, including at DEBUG.
+                        # Repeated failures are silent at all log levels.
                     else:
-                        if self._status_failure_count:
+                        self._cancel_failure_warning()
+                        if self._failure_warning_emitted:
                             _LOGGER.info(
-                                "HP Printer %s is reachable again after %d failed "
-                                "attempts",
+                                "HP Printer %s connection restored after %d failed attempts",
                                 self.config_data.hostname,
                                 self._status_failure_count,
                             )
+                        self._failure_warning_emitted = False
                         self._status_failure_count = 0
                         self._next_status_retry = 0.0
                         self._last_status_failure = None
@@ -243,6 +290,9 @@ class RestAPIv2:
 
     async def update(self, endpoints: list[str] | None = None):
         try:
+            if self._polling_suspended:
+                return
+
             _LOGGER.debug(f"Updating data from {self.config_data.hostname}")
 
             was_changed = await self._update_product_status_endpoint_data()
