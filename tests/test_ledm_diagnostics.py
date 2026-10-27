@@ -59,3 +59,47 @@ def test_latest_event_uses_highest_sequence_number():
     assert len(devices) == 1
     assert devices[0]["data"]["event_code"] == "74740"
     assert devices[0]["data"]["event_sequence"] == "1734"
+
+
+def test_wifi_radio_selects_only_wifi0_and_reads_nested_signal():
+    manager = Mock()
+    manager.endpoints = ["/IoMgmt/Adapters"]
+    manager.entry_id = "test"
+    manager.data_points = [
+        {
+            "name": "WiFi Radio",
+            "endpoint": "/IoMgmt/Adapters",
+            "path": "Adapters.Adapter",
+            "device_type": "Main",
+            "filter": {"HardwareConfig.Name": "Wifi0"},
+            "properties": {
+                "wifi_signal_dbm": {
+                    "path": "HardwareConfig.WifiNetwork.SignalInfo.dBm",
+                    "platform": "sensor",
+                },
+                "wifi_channel": {
+                    "path": "HardwareConfig.WifiNetwork.Channel",
+                    "platform": "sensor",
+                },
+            },
+        }
+    ]
+    api = RestAPIv2(None, manager)
+    api._raw_data["/IoMgmt/Adapters"] = {
+        "Adapters": {
+            "Adapter": [
+                {
+                    "HardwareConfig": {"Name": "Wifi1"},
+                    "Wireless": {"Channel": "6", "SignalInfo": {"dBm": "-80"}},
+                },
+                {
+                    "HardwareConfig": {"Name": "Wifi0"},
+                    "Wireless": {"Channel": "11", "SignalInfo": {"dBm": "-42"}},
+                },
+            ]
+        }
+    }
+    devices = api._get_devices_data()
+    assert len(devices) == 1
+    assert devices[0]["data"]["wifi_signal_dbm"] == "-42"
+    assert devices[0]["data"]["wifi_channel"] == "11"
