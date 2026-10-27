@@ -512,6 +512,14 @@ class RestAPIv2:
                             for item in data
                         ]
 
+                if data_point.get("name") == "Printer Events" and isinstance(data, list):
+                    # The event log is newest-first on some printers, but order is
+                    # not guaranteed. Publish only the highest sequence number.
+                    data = max(
+                        (event for event in data if isinstance(event, dict)),
+                        key=lambda event: int(event.get("SequenceNumber", 0)),
+                        default=None,
+                    )
                 if properties is not None:
                     item_filter = data_point.get("filter", {})
                     if isinstance(data, list) and item_filter:
@@ -649,7 +657,7 @@ class RestAPIv2:
             if endpoint == PRODUCT_STATUS_ENDPOINT:
                 self._last_status_failure = "request timed out"
             else:
-                _LOGGER.error(f"Failed to get {endpoint} due to timeout")
+                _LOGGER.debug("Failed to get %s due to timeout", endpoint)
 
         except Exception as ex:  # noqa: BLE001 - report device or API failures
             if endpoint == PRODUCT_STATUS_ENDPOINT:
