@@ -4,7 +4,7 @@
 
 This repository is maintained by [@minimicro34](https://github.com/minimicro34), based on the original HP Printer integration by [@elad-bar](https://github.com/elad-bar/ha-hpprinter). Thanks to the original author and contributors for their work.
 
-Version 3.0.1 has been released and validated on HP ENVY 4500. Version 3.0.2 is in development, adding a bundled Lovelace card, a last-successful-sync sensor and regression tests; hardware validation is pending.
+Version 3.0.2 is the latest stable release. Version 3.0.3 is being tested through prereleases, including improved offline handling and polling controls.
 
 ### Contributing
 
@@ -55,6 +55,31 @@ It is also possible to change configuration after setting up using integration c
 | ------------------------------------------------------ |
 | Invalid parameters provided                            |
 | HP Printer Embedded Web Server (EWS) not was not found |
+
+## Polling control (v3.0.3 prerelease)
+
+HP Printer supports two Home Assistant actions under the `hpprinter` domain:
+
+- `hpprinter.suspend_polling`: stop HTTP requests immediately, mark the printer offline and keep the integration and previously cached counter/consumable values loaded. Repeated calls are safe.
+- `hpprinter.force_update`: resume polling if suspended, clear the offline retry backoff and refresh the printer and its endpoints without waiting for normal polling intervals.
+
+Both actions accept an optional `entry_id`. Without it, they target **all** loaded HP Printer configuration entries. For example, in a Home Assistant automation:
+
+```yaml
+actions:
+  - action: hpprinter.suspend_polling
+```
+
+When the printer's HTTP port becomes reachable again:
+
+```yaml
+actions:
+  - action: hpprinter.force_update
+```
+
+For printers controlled by a smart plug, keep the HP Printer integration enabled and call `suspend_polling` when power is cut (or port 80 is unavailable); call `force_update` after port 80 becomes reachable. This avoids removing entities from Home Assistant. The IPP integration, if used separately, does not need to change.
+
+Without an automation, a failed status request marks the printer offline and starts exponential retry backoff (10, 20, 40, 80, 160, then up to 300 seconds). A warning is emitted only if the failure persists for 10 seconds; recovery is logged once if that warning was emitted. Previously fetched counter values are retained.
 
 ## Devices
 
