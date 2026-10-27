@@ -1,5 +1,24 @@
 # Changelog
 
+## 3.0.3 — Released
+
+### Added
+- HP Printer Lovelace dashboard card with automatic entity discovery, printer status, ink levels, usage counters and expandable diagnostics.
+- Last successful synchronization timestamp sensor, retained when the printer is offline.
+- LEDM diagnostic sensors for network and wireless impressions, Wi-Fi signal strength, channel, SSID and connectivity, packet statistics, memory, power settings, paper tray and latest printer event.
+- `hpprinter.suspend_polling` and `hpprinter.force_update` actions for smart-plug automations and manual recovery.
+
+### Changed
+- Preserve cached counters and consumable readings when the printer is offline; reduce repeated connection warnings and apply retry backoff.
+- Correct copy and flatbed counter presentation, Wi-Fi adapter selection and dashboard entity lookups.
+- Decode hexadecimal Wi-Fi SSIDs and display power-save durations in readable units.
+- Keep optional LEDM endpoint failures from disrupting the printer's core sensors.
+
+### Validation
+- Tested on an HP ENVY 4500, including the Wi-Fi diagnostics and dashboard card.
+- GitHub Actions Python quality, tests, hassfest and HACS validation passed on the beta.4 merge commit.
+
+
 ## 3.0.2 — In development
 
 ### Added
