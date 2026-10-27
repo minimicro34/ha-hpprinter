@@ -200,7 +200,9 @@ class RestAPIv2:
                 if endpoint == PRODUCT_STATUS_ENDPOINT:
                     if data is None:
                         self._status_failure_count += 1
-                        delay = min(300, 10 * 2 ** min(self._status_failure_count - 1, 5))
+                        delay = min(
+                            300, 10 * 2 ** min(self._status_failure_count - 1, 5)
+                        )
                         self._next_status_retry = time.monotonic() + delay
                         if self._status_failure_count == 1:
                             self._cancel_failure_warning()
@@ -631,7 +633,9 @@ class RestAPIv2:
         except TimeoutError:
             if endpoint == PRODUCT_STATUS_ENDPOINT:
                 self._last_status_failure = "request timed out"
-                _LOGGER.debug("Status request timed out for %s", self.config_data.hostname)
+                _LOGGER.debug(
+                    "Status request timed out for %s", self.config_data.hostname
+                )
             else:
                 _LOGGER.error(f"Failed to get {endpoint} due to timeout")
 
@@ -644,7 +648,9 @@ class RestAPIv2:
             completed_ts = datetime.now().timestamp()
             time_taken = completed_ts - start_ts
 
-            log = _LOGGER.debug if endpoint == PRODUCT_STATUS_ENDPOINT else _LOGGER.error
+            log = (
+                _LOGGER.debug if endpoint == PRODUCT_STATUS_ENDPOINT else _LOGGER.error
+            )
             log(
                 f"Failed to get {endpoint}, "
                 f"Error: {ex}, "
