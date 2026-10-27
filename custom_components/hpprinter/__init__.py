@@ -16,32 +16,38 @@ _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 FORCE_UPDATE_SERVICE = "force_update"
-FORCE_UPDATE_SCHEMA = vol.Schema({vol.Optional("entry_id"): cv.string})
+SUSPEND_POLLING_SERVICE = "suspend_polling"
+TARGET_SCHEMA = vol.Schema({vol.Optional("entry_id"): cv.string})
 
 
 async def async_setup(hass, _config):
     await async_register_card(hass)
 
-    async def async_force_update(call: ServiceCall) -> None:
-        """Force immediate polling, bypassing backoff and endpoint intervals."""
+    def get_targets(call: ServiceCall):
         coordinators = hass.data.get(DOMAIN, {})
         entry_id = call.data.get("entry_id")
-        targets = (
-            [coordinators[entry_id]]
-            if entry_id in coordinators
-            else list(coordinators.values()) if entry_id is None else []
-        )
-        if entry_id is not None and not targets:
+        if entry_id is None:
+            return list(coordinators.values())
+        if entry_id not in coordinators:
             raise ValueError(f"HP Printer config entry not loaded: {entry_id}")
-        for coordinator in targets:
-            coordinator.api.reset_polling_backoff()
+        return [coordinators[entry_id]]
+
+    async def async_force_update(call: ServiceCall) -> None:
+        """Resume polling and bypass backoff and endpoint intervals."""
+        for coordinator in get_targets(call):
+            coordinator.api.resume_polling()
             await coordinator.async_request_refresh()
 
+    async def async_suspend_polling(call: ServiceCall) -> None:
+        """Suspend HTTP polling while keeping the integration loaded."""
+        for coordinator in get_targets(call):
+            coordinator.api.suspend_polling()
+
     hass.services.async_register(
-        DOMAIN,
-        FORCE_UPDATE_SERVICE,
-        async_force_update,
-        schema=FORCE_UPDATE_SCHEMA,
+        DOMAIN, FORCE_UPDATE_SERVICE, async_force_update, schema=TARGET_SCHEMA
+    )
+    hass.services.async_register(
+        DOMAIN, SUSPEND_POLLING_SERVICE, async_suspend_polling, schema=TARGET_SCHEMA
     )
     return True
 
