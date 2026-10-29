@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.4 — Released
+
+### Fixed
+- Remove the deprecated `CONN_CLASS_LOCAL_POLL` attribute from the config flow for compatibility with Home Assistant Core 2026.11 and later.
+- Preserve the `local_polling` IoT class in the integration manifest.
+
+### Compatibility
+- No changes to configuration entries, entity identifiers, polling behavior or the Lovelace card.
+
+
 ## 3.0.3 — Released
 
 ### Added
