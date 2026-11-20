@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.5 — Pending release
+
+### Changed
+- Poll the shared `/DevMgmt/ProductUsageDyn.xml` endpoint every minute instead of every five minutes to refresh printer, scanner, copier, fax and consumable usage counters more frequently.
+- Keep printer status polling at 10 seconds and preserve existing suspension, resume, cached values and offline behavior.
+
+### Validation
+- GitHub Actions validation passed for the polling change (Ruff, Python tests, hassfest and HACS).
+- Printer hardware validation of the shorter polling interval is pending.
+
 ## 3.0.4 — Released
 
 ### Fixed
