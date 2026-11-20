@@ -1,0 +1,179 @@
+name: Signed release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag (for example v3.0.5)"
+        required: true
+        type: string
+      prerelease:
+        description: "Publish as a pre-release"
+        type: boolean
+        default: false
+      dry_run:
+        description: "Validate signing without publishing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hpprinter-signed-release
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    name: Quality checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Install dependencies
+        run: python -m pip install homeassistant pytest pytest-asyncio pytest-cov xmltodict flatten-json defusedxml aiofiles ruff
+      - name: Validate code and run tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            ruff check custom_components/hpprinter
+            ruff format --check custom_components/hpprinter
+            python -m compileall -q custom_components/hpprinter
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          for file in Path("custom_components/hpprinter").rglob("*.json"):
+              json.loads(file.read_text(encoding="utf-8"))
+          PY
+            python -m pytest tests -q --cov=custom_components.hpprinter.managers.rest_api --cov-report=term-missing
+          } 2>&1 | tee quality.log
+      - uses: actions/upload-artifact@v6
+        with:
+          name: signed-release-quality
+          path: quality.log
+
+  hassfest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: hacs/action@main
+        with:
+          category: integration
+
+  release:
+    name: Sign tag and publish
+    needs: [quality, hassfest, hacs]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.version }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v7
+        with:
+          name: signed-release-quality
+      - name: Validate release
+        shell: bash
+        env:
+          IS_PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z][0-9A-Za-z.-]*)?$ ]] || { echo "::error::Invalid tag"; exit 1; }
+          [[ "$RELEASE_TAG" != *-* || "$IS_PRERELEASE" == "true" ]] || { echo "::error::Prerelease tag requires prerelease=true"; exit 1; }
+          manifest="$(python -c 'import json; print(json.load(open("custom_components/hpprinter/manifest.json"))["version"])')"
+          [[ "$RELEASE_TAG" == "v$manifest" ]] || { echo "::error::Manifest version mismatch"; exit 1; }
+          [[ -n "$GPG_PRIVATE_KEY" && -n "$GPG_PASSPHRASE" ]] || { echo "::error::Missing GPG secrets"; exit 1; }
+          if git ls-remote --exit-code --tags origin "refs/tags/$RELEASE_TAG" >/dev/null; then
+            echo "::error::Tag already exists"
+            exit 1
+          fi
+      - name: Sign and verify tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          export GNUPGHOME="$RUNNER_TEMP/gnupg"
+          mkdir -p "$GNUPGHOME"
+          chmod 700 "$GNUPGHOME"
+          printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
+          fingerprint="$(gpg --batch --with-colons --list-secret-keys | awk -F: '$1=="fpr" {print $10; exit}')"
+          [[ -n "$fingerprint" ]] || exit 1
+          echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
+          git config user.name "GitHub Releases - minimicro34"
+          git config user.email "minimicro34@gmail.com"
+          git config user.signingkey "$fingerprint"
+          git config gpg.format openpgp
+          printf '%s' "$GPG_PASSPHRASE" > "$RUNNER_TEMP/passphrase"
+          chmod 600 "$RUNNER_TEMP/passphrase"
+          printf '#!/bin/bash\nexec gpg --batch --yes --pinentry-mode loopback --passphrase-file "$RUNNER_TEMP/passphrase" "$@"\n' > "$RUNNER_TEMP/gpg-sign"
+          chmod 700 "$RUNNER_TEMP/gpg-sign"
+          git config gpg.program "$RUNNER_TEMP/gpg-sign"
+          git tag -s "$RELEASE_TAG" -m "$RELEASE_TAG"
+          git tag -v "$RELEASE_TAG"
+      - name: Generate notes from changelog and CI
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          tag = os.environ["RELEASE_TAG"]
+          version = tag[1:]
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+          match = re.search(
+              rf"(?ms)^## (?:\[{re.escape(version)}\]|{re.escape(version)})(?:[^\n]*)\n(.*?)(?=^## (?:\[|\d)|\Z)",
+              changelog,
+          )
+          if not match:
+              raise SystemExit("Missing changelog section")
+          notes = match.group(1).strip()
+          notes = re.sub(r"(?ms)^### (?:Validation|Tests)\s*\n.*?(?=^### |\Z)", "", notes).strip()
+          notes = re.sub(r"(?m)^---\s*$|^\*\*Full Changelog:\*\*.*$", "", notes).strip()
+          log = Path("quality.log").read_text(encoding="utf-8")
+          tests = re.findall(r"(\d+) passed\b", log)
+          coverage = re.findall(r"(?m)^TOTAL\s+\d+\s+\d+\s+(\d+(?:\.\d+)?)%", log)
+          versions = re.findall(r"(?m)^## (?:\[)?(\d+\.\d+\.\d+)(?:\])?", changelog)
+          idx = versions.index(version)
+          if not tests or not coverage or idx + 1 >= len(versions):
+              raise SystemExit("Missing verified test metrics or previous version")
+          previous = versions[idx + 1]
+          notes += (
+              f"\n\n### Validation\n\n- Python: {tests[-1]} tests passed; coverage {coverage[-1]}% (REST API module).\n"
+              "- Quality: Ruff, Python syntax, JSON, hassfest and HACS passed.\n\n"
+              "---\n\n"
+              f"**Full Changelog:** https://github.com/minimicro34/ha-hpprinter/compare/v{previous}...{tag}\n"
+          )
+          Path("release-notes.md").write_text(notes, encoding="utf-8")
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: signed-release-notes
+          path: release-notes.md
+      - name: Publish
+        if: inputs.dry_run == false
+        shell: bash
+        env:
+          IS_PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+          git push origin "refs/tags/$RELEASE_TAG"
+          args=(--title "$RELEASE_TAG" --notes-file release-notes.md --verify-tag)
+          if [[ "$IS_PRERELEASE" == "true" ]]; then args+=(--prerelease); else args+=(--latest); fi
+          gh release create "$RELEASE_TAG" "${args[@]}"
+      - name: Simulation
+        if: inputs.dry_run == true
+        run: echo "Dry run successful: no tag pushed or release published." >> "$GITHUB_STEP_SUMMARY"
