@@ -126,6 +126,7 @@
   {
     "name": "Consumable Usage",
     "endpoint": "/DevMgmt/ProductUsageDyn.xml",
+    "interval": "1m",
     "path": "ProductUsageDyn.ConsumableSubunit.Consumable",
     "device_type": "Consumable",
     "identifier": {
