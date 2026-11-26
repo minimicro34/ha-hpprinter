@@ -6,14 +6,13 @@ import time
 from datetime import datetime
 
 import xmltodict
-from aiohttp import ClientResponseError, ClientSession, ClientTimeout, TCPConnector
+from aiohttp import ClientResponseError, ClientSession, ClientTimeout
 from defusedxml import ElementTree
 from flatten_json import flatten
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.dispatcher import dispatcher_send
 from homeassistant.helpers.storage import Store
-from homeassistant.util import slugify, ssl
-from homeassistant.util.ssl import SSLCipherList
+from homeassistant.util import slugify
 
 from ..common.consts import (
     IGNORED_KEYS,
@@ -172,17 +171,6 @@ class RestAPIv2:
                 self._session = ClientSession(loop=self._loop)
             else:
                 self._session = async_create_clientsession(hass=self._hass)
-
-    def _get_ssl_connector(self):
-        ssl_context = ssl.create_no_verify_ssl_context(SSLCipherList.INTERMEDIATE)
-
-        connector = TCPConnector(
-            loop=self._loop,
-            enable_cleanup_closed=True,  # Hardcoded op True aangezien de constante weg is
-            ssl=ssl_context,
-        )
-
-        return connector
 
     async def _update_endpoint_data(self, endpoint: str) -> bool:
         can_update = False
@@ -422,35 +410,6 @@ class RestAPIv2:
 
         for device_key in self._data:
             self.device_data_changed(device_key)
-
-    @staticmethod
-    def _get_device_from_list(
-        data: list[dict], identifier_key: str, device_id
-    ) -> dict | None:
-        data_items = [
-            data_item
-            for data_item in data
-            if data_item.get(identifier_key) == device_id
-        ]
-
-        if data_items:
-            return data_items[0]
-
-        else:
-            return None
-
-    def _get_device_config(self, device_type: str) -> dict | None:
-        data_configs = [
-            data_point
-            for data_point in self._config_manager.data_points
-            if device_type == data_point.get("name")
-        ]
-
-        if data_configs:
-            return data_configs[0]
-
-        else:
-            return None
 
     @staticmethod
     def _get_data_section(data: dict, path: str) -> dict:
