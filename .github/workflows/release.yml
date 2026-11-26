@@ -32,24 +32,20 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
-      - name: Install dependencies
-        run: python -m pip install homeassistant pytest pytest-asyncio pytest-cov xmltodict flatten-json defusedxml aiofiles ruff
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install development dependencies
+        run: make install-dev
       - name: Validate code and run tests
         shell: bash
         run: |
           set -euo pipefail
-          {
-            ruff check custom_components/hpprinter
-            ruff format --check custom_components/hpprinter
-            python -m compileall -q custom_components/hpprinter
-            python - <<'PY'
-          import json
-          from pathlib import Path
-          for file in Path("custom_components/hpprinter").rglob("*.json"):
-              json.loads(file.read_text(encoding="utf-8"))
-          PY
-            python -m pytest tests -q --cov=custom_components.hpprinter.managers.rest_api --cov-report=term-missing
-          } 2>&1 | tee quality.log
+          make check 2>&1 | tee quality.log
+      - uses: actions/upload-artifact@v6
+        with:
+          name: signed-release-coverage
+          path: coverage.xml
       - uses: actions/upload-artifact@v6
         with:
           name: signed-release-quality
@@ -152,8 +148,8 @@ jobs:
               raise SystemExit("Missing verified test metrics or previous version")
           previous = versions[idx + 1]
           notes += (
-              f"\n\n### Validation\n\n- Python: {tests[-1]} tests passed; coverage {coverage[-1]}% (REST API module).\n"
-              "- Quality: Ruff, Python syntax, JSON, hassfest and HACS passed.\n\n"
+              f"\n\n### Validation\n\n- Python: {tests[-1]} tests passed; coverage {coverage[-1]}% (entire integration).\n"
+              "- Quality: Ruff, Python and JavaScript syntax, JavaScript tests, JSON, hassfest and HACS passed.\n\n"
               "---\n\n"
               f"**Full Changelog:** https://github.com/minimicro34/ha-hpprinter/compare/v{previous}...{tag}\n"
           )
