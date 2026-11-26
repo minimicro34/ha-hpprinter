@@ -15,7 +15,7 @@ Do not publish passwords, access tokens, or private printer configuration.
 
 ## Local development
 
-Use Python 3.14, Node.js 22 and Make. From the repository root:
+Use Python 3.14, Node.js 24 and Make. From the repository root:
 
 ```bash
 python3.14 -m venv .venv
