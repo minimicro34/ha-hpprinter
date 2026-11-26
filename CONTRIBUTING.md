@@ -13,12 +13,26 @@ Open an issue at https://github.com/minimicro34/ha-hpprinter/issues and include:
 
 Do not publish passwords, access tokens, or private printer configuration.
 
+## Local development
+
+Use Python 3.14, Node.js 22 and Make. From the repository root:
+
+```bash
+python3.14 -m venv .venv
+source .venv/bin/activate
+make install-dev
+make check
+```
+
+Individual targets: `make lint`, `make format-check`, `make syntax`, `make json`, `make test`, `make coverage`, and `make test-js`.
+
+Coverage applies to the entire Python integration, with a minimum of 80%. The XML report is written to `coverage.xml`. Add meaningful regression tests for changed behavior rather than tests solely to increase coverage. JavaScript tests use Node's built-in test runner without npm dependencies. Both validation and signed release workflows use `make check`.
+
 ## Pull requests
 
 - Target the `master` branch, keep changes focused, and explain their impact.
 - Preserve existing entity unique IDs and device identifiers unless a migration is included.
-- Run `ruff check custom_components/hpprinter` and `ruff format --check custom_components/hpprinter`.
-- Validate Python syntax and JSON; GitHub Actions also runs hassfest and HACS validation.
+- Run `make check` before submitting; GitHub Actions runs the same checks plus hassfest and HACS validation.
 - Test with a real printer where possible, including offline/online recovery and existing entity history.
 - Add user-facing changes to `CHANGELOG.md`.
 
