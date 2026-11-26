@@ -162,7 +162,8 @@ async def test_discovery_dispatch(real_coordinator, key):
 def test_device_creation_failure(real_coordinator, method, caplog):
     coordinator = real_coordinator
     coordinator._main_device_data = {}
-    with patch.object(module, "DeviceInfo", side_effect=ValueError("invalid device")):
+    with patch.object(coordinator, "_parent_device_id", return_value="parent"), patch.object(module, "DeviceInfo", side_effect=ValueError("invalid device")) as factory:
         getattr(coordinator, method)("invalid", {}, {})
+    factory.assert_called_once()
     assert "invalid" not in coordinator.get_devices()
     assert "invalid device" in caplog.text
