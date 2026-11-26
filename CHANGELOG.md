@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.6 — Pending release
+## 3.0.6 — Released
 
 ### Fixed
 - Use attribute access for DeviceInfo on newer Home Assistant versions to resolve the deprecation introduced in Core 2026.12.0b0, while retaining compatibility with legacy dictionary-based DeviceInfo objects.
