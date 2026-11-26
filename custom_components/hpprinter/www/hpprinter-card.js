@@ -45,6 +45,7 @@ class HPPrinterCard extends HTMLElement {
       return names[raw] || raw.replace(/^(\d+)minutes$/, "$1 min").replace(/^(\d+)hours$/, "$1 h");
     };
     const status = value("main", "device_status");
+    const networkStale = ["off", "offline", "unavailable", "unknown", "—"].includes(status.trim().toLowerCase());
     const printers = [
       ["Impressions", value("printer", "total_impressions")],
       ["Copies", value("copy", "total_impressions")],
@@ -77,18 +78,18 @@ class HPPrinterCard extends HTMLElement {
       ["Incidents d’alimentation papier", value("printer", "mispick_events")],
       ["Impressions réseau", value("printer", "network_impressions")],
       ["Impressions Wi-Fi", value("printer", "wireless_network_impressions")],
-      ["Signal Wi-Fi (dBm)", value("main", "wifi_signal_dbm")],
-      ["Intensité Wi-Fi HP", value("main", "wifi_signal_strength")],
-      ["Canal Wi-Fi", value("main", "wifi_channel")],
-      ["SSID Wi-Fi", decodeSSID(value("main", "wifi_ssid"))],
-      ["Interface Wi-Fi", wifiConnected()],
-      ["Pertes de liaison (brut)", value("main", "downlink_count")],
-      ["Paquets reçus", value("main", "total_packets_received")],
-      ["Paquets transmis", value("main", "total_packets_transmitted")],
-      ["Paquets erronés", value("main", "bad_packets_received")],
-      ["Erreurs de trame", value("main", "framing_errors_received")],
-      ["Collisions émission", value("main", "transmit_collisions")],
-      ["Paquets impossibles à envoyer", value("main", "unsendable_packets")],
+      ["Signal Wi-Fi (dBm)", value("main", "wifi_signal_dbm"), true],
+      ["Intensité Wi-Fi HP", value("main", "wifi_signal_strength"), true],
+      ["Canal Wi-Fi", value("main", "wifi_channel"), true],
+      ["SSID Wi-Fi", decodeSSID(value("main", "wifi_ssid")), true],
+      ["Interface Wi-Fi", wifiConnected(), true],
+      ["Pertes de liaison (brut)", value("main", "downlink_count"), true],
+      ["Paquets reçus", value("main", "total_packets_received"), true],
+      ["Paquets transmis", value("main", "total_packets_transmitted"), true],
+      ["Paquets erronés", value("main", "bad_packets_received"), true],
+      ["Erreurs de trame", value("main", "framing_errors_received"), true],
+      ["Collisions émission", value("main", "transmit_collisions"), true],
+      ["Paquets impossibles à envoyer", value("main", "unsendable_packets"), true],
       ["Délai de veille", displayValue(value("main", "power_save_timeout"))],
       ["Extinction automatique", displayValue(value("main", "auto_off_time"))],
       ["Économie d'énergie", displayValue(value("main", "power_save"))],
@@ -137,6 +138,7 @@ class HPPrinterCard extends HTMLElement {
         details { margin-top:18px; border-top:1px solid var(--divider-color); padding-top:12px; }
         summary { cursor:pointer; font-weight:600; }
         .diag-row { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid var(--divider-color); font-size:13px; }
+        .diag-row.stale { color:var(--secondary-text-color); }
         .hint { color:var(--secondary-text-color); font-size:13px; }
       </style>
       <ha-card>
@@ -146,7 +148,7 @@ class HPPrinterCard extends HTMLElement {
         <div class="grid">${printers.map(([name, count]) => `<div class="metric"><strong>${esc(count)}</strong><span>${esc(name)}</span></div>`).join("")}</div>
         <h3>Cartouches</h3>
         ${ink.length ? ink.map((i) => `<div class="ink"><div class="ink-label"><span>${esc(i.name)}</span><b>${esc(i.state)} %</b></div><div class="track"><div class="fill ${esc(i.color || "")}" style="width:${pct(i.state)}%"></div></div></div>`).join("") : '<p class="hint">Niveaux non disponibles.</p>'}
-        <details ${diagnosticsOpen ? "open" : ""}><summary>Diagnostics</summary>${diagnostics.map(([name, count]) => `<div class="diag-row"><span>${esc(name)}</span><strong>${esc(count)}</strong></div>`).join("")}</details>
+        <details ${diagnosticsOpen ? "open" : ""}><summary>Diagnostics</summary>${networkStale ? '<p class="hint">Diagnostics réseau : dernières valeurs connues.</p>' : ""}${diagnostics.map(([name, count, network]) => { const stale = networkStale && network && count !== "—"; return `<div class="diag-row${stale ? " stale" : ""}"><span>${esc(name)}</span><strong>${esc(count)}${stale && name === "Interface Wi-Fi" ? " (dernier état connu)" : ""}</strong></div>`; }).join("")}</details>
       </ha-card>`;
   }
 }
