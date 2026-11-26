@@ -48,7 +48,8 @@ async def test_single_device_diagnostics(diagnostic_context):
 def test_device_export_includes_disabled_and_missing_states():
     hass = Mock()
     identifiers = {(DOMAIN, "Main")}
-    device = Mock(id="device", name="HP", name_by_user=None, disabled=False, disabled_by=None)
+    device = Mock(id="device", name_by_user=None, disabled=False, disabled_by=None)
+    device.name = "HP"
     entries = [
         Mock(entity_id="sensor.hp_status", disabled=False, disabled_by=None),
         Mock(entity_id="sensor.hp_hidden", disabled=True, disabled_by="user"),
