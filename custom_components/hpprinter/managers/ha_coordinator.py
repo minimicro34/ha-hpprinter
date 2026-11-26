@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from homeassistant.core import Event, callback
+from homeassistant.core import Event
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
@@ -92,18 +92,6 @@ class HACoordinator(DataUpdateCoordinator):
         await self.async_request_refresh()
 
     def _load_signal_handlers(self):
-        loop = self.hass.loop
-
-        @callback
-        def on_device_discovered(
-            entry_id: str, device_key: str, device_data: dict, device_config: dict
-        ):
-            loop.create_task(
-                self._on_device_discovered(
-                    entry_id, device_key, device_data, device_config
-                )
-            ).__await__()
-
         self.config_entry.async_on_unload(
             async_dispatcher_connect(
                 self.hass, SIGNAL_HA_DEVICE_DISCOVERED, self._on_device_discovered
