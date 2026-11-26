@@ -231,40 +231,6 @@ Diagnostic file contains 3 section related to data extracted from the device:
 
 ## Translations
 
-Integration translated from English to:
+Translations are maintained directly in `custom_components/hpprinter/strings.json` and the language JSON files in `custom_components/hpprinter/translations/`.
 
-- German
-- Danish
-- Spanish
-- French
-- Dutch
-- Norwegian
-- Polish
-- Portuguese
-
-Translation is being auto-generated from Google Translate using `utils/generate_translations.py` script,
-
-```json
-{
-  "en": "en",
-  "de": "de",
-  "dk": "da",
-  "es": "es",
-  "fr": "fr",
-  "nb": "no",
-  "nl": "nl",
-  "pl": "pl",
-  "pt-BR": "pt"
-}
-```
-
-If you would like to add new translation language, please add to the `DESTINATION_LANGUAGES` constant the relevant language,
-format is:
-
-```json
-{
-  "HA language": "Google Translate language"
-}
-```
-
-Script is translating only, new missing values, it will not override translated values.
+When adding or changing translatable strings, update the source and corresponding language files. Preserve translation keys and placeholders, and run `make check` before submitting changes.
