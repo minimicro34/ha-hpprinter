@@ -5,7 +5,7 @@ COMPONENT := custom_components/hpprinter
 .PHONY: install-dev lint format-check syntax json test coverage test-js check
 
 install-dev:
-	$(PYTHON) -m pip install -r requirements-dev.txt
+	$(PYTHON) -m pip install -r requirements.txt
 
 lint:
 	$(PYTHON) -m ruff check $(COMPONENT)
