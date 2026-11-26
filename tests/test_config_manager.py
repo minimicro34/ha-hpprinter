@@ -1,13 +1,13 @@
 """Configuration manager regression tests."""
 
 from datetime import timedelta
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from homeassistant.const import Platform
 from homeassistant.helpers.entity import EntityCategory
 
-from custom_components.hpprinter.common.consts import DEFAULT_ENTRY_ID
+from custom_components.hpprinter.common.consts import DEFAULT_ENTRY_ID, DEFAULT_INTERVAL, DOMAIN
 from custom_components.hpprinter.managers.ha_config_manager import HAConfigManager
 
 
@@ -117,3 +117,56 @@ def test_entity_descriptions_and_exclusions(manager):
     )
     manager._update_platforms()
     assert len(manager.platforms) == 2
+
+
+@pytest.mark.asyncio
+async def test_initialize_with_home_assistant():
+    hass = Mock()
+    hass.config.language = "fr"
+    entry = Mock(entry_id="printer", title="HP")
+    store = Mock(async_load=AsyncMock(return_value=None), async_save=AsyncMock())
+    translations = {"component.hpprinter.entity.sensor.status.name": "État"}
+    with patch("custom_components.hpprinter.managers.ha_config_manager.Store", return_value=store) as factory, patch("custom_components.hpprinter.managers.ha_config_manager.translation.async_get_translations", new_callable=AsyncMock, return_value=translations) as translate:
+        manager = HAConfigManager(hass, entry)
+        await manager.initialize({})
+    factory.assert_called_once()
+    assert factory.call_args.args[0] is hass
+    translate.assert_awaited_once_with(hass, "fr", "entity", {DOMAIN})
+    assert manager._translations == translations
+    assert manager.is_initialized
+
+
+@pytest.mark.asyncio
+async def test_remove_without_storage(manager):
+    await manager.remove("printer")
+    assert manager._store is None
+
+
+@pytest.mark.parametrize("translation", [None, ""])
+def test_empty_translation_fallback(manager, translation, caplog):
+    description = Mock(platform=Platform.SENSOR, translation_key="status")
+    description.name = "Status"
+    device = Mock()
+    device.name = "HP"
+    manager._translations = {f"component.{DOMAIN}.entity.sensor.status.name": translation}
+    assert manager.get_entity_name(description, device) == "HP Status"
+    assert "Translations not found" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_defaults_preserve_saved_values(manager):
+    manager._store = Mock(
+        async_load=AsyncMock(return_value={"printer": {"existing": 7}}),
+        async_save=AsyncMock(),
+    )
+    with patch.object(manager, "_get_defaults", return_value={"existing": 1, "new": 2}):
+        await manager._load()
+    assert manager._data == {"existing": 7, "new": 2}
+    manager._store.async_save.assert_awaited_once_with({"printer": {"existing": 7, "new": 2}})
+    debug = manager.get_debug_data()
+    assert debug["existing"] == 7
+    assert debug["new"] == 2
+
+
+def test_default_duration():
+    assert HAConfigManager._convert_to_seconds(None) == HAConfigManager._convert_to_seconds(DEFAULT_INTERVAL)
