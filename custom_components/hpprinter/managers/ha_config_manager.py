@@ -171,7 +171,11 @@ class HAConfigManager:
         translation_key = entity_description.translation_key
         platform = entity_description.platform
 
-        device_name = device_info.get("name")
+        # DeviceInfo is a dataclass on newer Home Assistant versions.
+        if hasattr(device_info, "name"):
+            device_name = device_info.name
+        else:
+            device_name = device_info.get("name")
         translation_key = f"component.{DOMAIN}.entity.{platform}.{translation_key}.name"
 
         translated_name = self._translations.get(
