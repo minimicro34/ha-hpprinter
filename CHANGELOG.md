@@ -1,17 +1,17 @@
 # Changelog
 
-## 3.0.6 — Released
+## 3.0.6 — 2026-11-26
 
 ### Fixed
 - Use attribute access for DeviceInfo on newer Home Assistant versions to resolve the deprecation introduced in Core 2026.12.0b0, while retaining compatibility with legacy dictionary-based DeviceInfo objects.
 
-## 3.0.5 — Released
+## 3.0.5 — 2026-11-20
 
 ### Changed
 - Poll the shared `/DevMgmt/ProductUsageDyn.xml` endpoint every minute instead of every five minutes to refresh printer, scanner, copier, fax and consumable usage counters more frequently.
 - Keep printer status polling at 10 seconds and preserve existing suspension, resume, cached values and offline behavior.
 
-## 3.0.4 — Released
+## 3.0.4 — 2026-10-29
 
 ### Fixed
 - Remove the deprecated `CONN_CLASS_LOCAL_POLL` attribute from the config flow for compatibility with Home Assistant Core 2026.11 and later.
@@ -21,7 +21,7 @@
 - No changes to configuration entries, entity identifiers, polling behavior or the Lovelace card.
 
 
-## 3.0.3 — Released
+## 3.0.3 — 2026-10-27
 
 ### Added
 - HP Printer Lovelace dashboard card with automatic entity discovery, printer status, ink levels, usage counters and expandable diagnostics.
@@ -40,7 +40,7 @@
 - GitHub Actions Python quality, tests, hassfest and HACS validation passed on the beta.4 merge commit.
 
 
-## 3.0.2 — In development
+## 3.0.2 — 2026-10-26
 
 ### Added
 - Bundle an HP Printer Lovelace card, with automatic entity discovery, printer status, usage counters, ink levels and expandable diagnostics.
@@ -57,7 +57,7 @@
 - Initial REST API coverage: 32% (3 tests passed); coverage is limited to this module, not the entire integration.
 - Hardware validation of the new Lovelace card and timestamp sensor is still pending. Do not publish until tested.
 
-## 3.0.1 — Released
+## 3.0.1 — 2026-10-26
 
 ### Fixed
 - Replace deprecated device registry lookup with `async_get_device_by_identifier`, scoped to the current config entry.
@@ -69,7 +69,7 @@
 - Restored values are last-known readings, not proof that the printer is currently reachable. The timestamp is stored internally; a dedicated last-sync entity is not yet exposed.
 - Pending validation on HP ENVY 4500 and Ruff, hassfest, and HACS checks. Do not publish before validation.
 
-## 3.0.0 — Released
+## 3.0.0 — 2026-10-26
 
 ### Changed
 - Begin maintenance of the HP Printer integration in the `minimicro34/ha-hpprinter` fork.
