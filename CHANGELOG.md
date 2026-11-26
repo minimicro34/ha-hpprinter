@@ -1,6 +1,11 @@
 # Changelog
 
-## 3.0.5 — Pending release
+## 3.0.6 — Pending release
+
+### Fixed
+- Use attribute access for DeviceInfo on newer Home Assistant versions to resolve the deprecation introduced in Core 2026.12.0b0, while retaining compatibility with legacy dictionary-based DeviceInfo objects.
+
+## 3.0.5 — Released
 
 ### Changed
 - Poll the shared `/DevMgmt/ProductUsageDyn.xml` endpoint every minute instead of every five minutes to refresh printer, scanner, copier, fax and consumable usage counters more frequently.
