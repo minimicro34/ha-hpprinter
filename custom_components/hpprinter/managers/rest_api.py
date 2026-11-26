@@ -154,12 +154,7 @@ class RestAPIv2:
                 self._last_persisted_success = self._last_successful_update
 
         try:
-            if self._session is None:
-                if self._hass is None:
-                    self._session = ClientSession(loop=self._loop)
-                else:
-                    self._session = async_create_clientsession(hass=self._hass)
-
+            self._ensure_session()
             await self._update_product_status_endpoint_data()
 
         except Exception as ex:  # noqa: BLE001 - report device or API failures
@@ -169,6 +164,14 @@ class RestAPIv2:
             _LOGGER.warning(
                 f"Failed to initialize session, Error: {ex}, Line: {line_number}"
             )
+
+    def _ensure_session(self):
+        """Create or recover the HTTP session before a request."""
+        if self._session is None or self._session.closed is True:
+            if self._hass is None:
+                self._session = ClientSession(loop=self._loop)
+            else:
+                self._session = async_create_clientsession(hass=self._hass)
 
     def _get_ssl_connector(self):
         ssl_context = ssl.create_no_verify_ssl_context(SSLCipherList.INTERMEDIATE)
@@ -608,6 +611,7 @@ class RestAPIv2:
         start_ts = datetime.now().timestamp()
 
         try:
+            self._ensure_session()
             url = f"{self.config_data.url}{endpoint}"
 
             timeout = ClientTimeout(total=5)
