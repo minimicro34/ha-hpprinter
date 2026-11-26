@@ -156,7 +156,10 @@ def test_empty_translation_fallback(manager, translation, caplog):
 @pytest.mark.asyncio
 async def test_defaults_preserve_saved_values(manager):
     manager._store = Mock(
-        async_load=AsyncMock(return_value={"printer": {"existing": 7}}),
+        async_load=AsyncMock(side_effect=[
+            {"printer": {"existing": 7}},
+            {"printer": {"existing": 7}},
+        ]),
         async_save=AsyncMock(),
     )
     with patch.object(manager, "_get_defaults", return_value={"existing": 1, "new": 2}):
