@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version tag (for example v3.0.5)"
+        description: "Version tag (for example v3.0.7)"
         required: true
         type: string
       prerelease:
@@ -141,7 +141,14 @@ jobs:
           notes = re.sub(r"(?m)^---\s*$|^\*\*Full Changelog:\*\*.*$", "", notes).strip()
           log = Path("quality.log").read_text(encoding="utf-8")
           tests = re.findall(r"(\d+) passed\b", log)
-          coverage = re.findall(r"(?m)^TOTAL\s+\d+\s+\d+\s+(\d+(?:\.\d+)?)%", log)
+          coverage = re.findall(r"Total coverage:\s*(\d+(?:\.\d+)?)%", log)
+          js_tests = re.findall(r"(?m)^(?:ℹ|#)\s+tests\s+(\d+)\s*$", log)
+          js_pass = re.findall(r"(?m)^(?:ℹ|#)\s+pass\s+(\d+)\s*$", log)
+          js_fail = re.findall(r"(?m)^(?:ℹ|#)\s+fail\s+(\d+)\s*$", log)
+          if not js_tests or not js_pass or not js_fail:
+              raise SystemExit("Missing verified JavaScript test metrics")
+          if int(js_tests[-1]) == 0 or js_tests[-1] != js_pass[-1] or int(js_fail[-1]) != 0:
+              raise SystemExit("JavaScript tests did not all pass")
           versions = re.findall(r"(?m)^## (?:\[)?(\d+\.\d+\.\d+)(?:\])?", changelog)
           idx = versions.index(version)
           if not tests or not coverage or idx + 1 >= len(versions):
@@ -149,7 +156,8 @@ jobs:
           previous = versions[idx + 1]
           notes += (
               f"\n\n### Validation\n\n- Python: {tests[-1]} tests passed; coverage {coverage[-1]}% (entire integration).\n"
-              "- Quality: Ruff, Python and JavaScript syntax, JavaScript tests, JSON, hassfest and HACS passed.\n\n"
+              f"- JavaScript: {js_pass[-1]}/{js_tests[-1]} tests passed (Lovelace card).\n"
+              "- Quality: Ruff, Python and JavaScript syntax, JSON, hassfest and HACS passed.\n\n"
               "---\n\n"
               f"**Full Changelog:** https://github.com/minimicro34/ha-hpprinter/compare/v{previous}...{tag}\n"
           )
