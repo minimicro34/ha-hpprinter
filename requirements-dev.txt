@@ -1,0 +1,9 @@
+homeassistant
+pytest
+pytest-asyncio
+pytest-cov
+xmltodict
+flatten-json
+defusedxml
+aiofiles
+ruff
