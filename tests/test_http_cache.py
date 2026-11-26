@@ -1,7 +1,7 @@
 """Regression tests for HTTP handling and persistent printer data."""
 
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, Mock
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 from aiohttp import ClientResponseError
@@ -213,3 +213,48 @@ async def test_failed_cache_save_is_retried(api, caplog):
     assert not api._cache_dirty
     assert api._last_persisted_success == 1234
     assert api._cache_store.async_save.await_count == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("with_hass", [False, True])
+async def test_session_creation_recovers_after_initial_failure(api, with_hass, caplog):
+    session = api._session
+    session.closed = False
+    response(api, '{"online": true}', "application/javascript")
+    api._session = None
+    api._hass = Mock() if with_hass else None
+    api._get_devices_data = Mock(return_value=[])
+    api._extract_data = Mock()
+    factory = "async_create_clientsession" if with_hass else "ClientSession"
+    with patch(
+        f"custom_components.hpprinter.managers.rest_api.{factory}",
+        side_effect=[OSError("session unavailable"), session],
+    ) as create:
+        await api.initialize()
+        assert api._session is None
+        assert "session unavailable" in caplog.text
+        await api.update(endpoints=[])
+        assert api.is_online
+        assert api._session is session
+        assert create.call_count == 2
+        await api.update(endpoints=[])
+        assert create.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_closed_session_is_replaced(api):
+    old_session = api._session
+    old_session.closed = True
+    replacement = MagicMock()
+    replacement.closed = False
+    api._session = replacement
+    response(api, '{"count": 42}', "application/javascript")
+    api._session = old_session
+    with patch(
+        "custom_components.hpprinter.managers.rest_api.ClientSession",
+        return_value=replacement,
+    ) as create:
+        assert await api._get_request("/counters") == {"count": 42}
+        assert api._session is replacement
+        create.assert_called_once()
+        old_session.get.assert_not_called()
