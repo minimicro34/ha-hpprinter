@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.7 — 2026-11-26
+## 3.1.0 — 2026-11-26
 
 ### Fixed
 - Recover the HTTP client session after initialization failures or when the session has been closed, allowing subsequent polling requests to recover.
