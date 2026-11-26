@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.0.7 — Unreleased
+
+### Fixed
+- Recover the HTTP client session after initialization failures or when the session has been closed, allowing subsequent polling requests to recover.
+
+### Changed
+- Mark cached network diagnostics as last-known values when the printer is offline or its status is unavailable, including the Wi-Fi connection state.
+- Make the printer status more prominent in the Lovelace card.
+- Remove unused internal REST API helpers and the obsolete device discovery wrapper.
+
+### Development
+- Expand Python regression tests across polling, cache persistence, reconnection, suspension, configuration, entities, diagnostics, frontend registration and integration lifecycle.
+- Add native Node.js regression tests for Lovelace rendering, cached network diagnostics, consumables, printer isolation and HTML escaping.
+- Centralize validation in the Makefile with an 80% minimum global Python coverage threshold and XML coverage reports.
+- Align validation and signed release workflows on Python 3.14 and Node.js 24, and generate release validation metrics from both test suites.
+- Consolidate development dependencies, update contribution documentation and remove the legacy automatic translation generator while preserving existing translations.
+
 ## 3.0.6 — 2026-11-26
 
 ### Fixed
