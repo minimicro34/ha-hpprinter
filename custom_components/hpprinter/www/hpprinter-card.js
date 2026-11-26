@@ -120,7 +120,7 @@ class HPPrinterCard extends HTMLElement {
         ha-card { padding:20px; color:var(--primary-text-color); }
         header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
         h2 { margin:0; font-size:20px; font-weight:600; }
-        .status { color:var(--secondary-text-color); font-size:13px; }
+        .status { color:var(--secondary-text-color); font-size:20px; font-weight:700; text-transform:uppercase; }
         .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
         .metric { background:var(--secondary-background-color); border-radius:12px; padding:12px 8px; text-align:center; }
         .metric strong { display:block; font-size:20px; margin-bottom:4px; }
