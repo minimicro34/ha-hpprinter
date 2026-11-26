@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock
 import pytest
 from aiohttp import ClientResponseError
 
-from custom_components.hpprinter.common.consts import PRODUCT_STATUS_ENDPOINT
+from custom_components.hpprinter.common.consts import PRODUCT_STATUS_ENDPOINT, PRODUCT_STATUS_OFFLINE_PAYLOAD
 from custom_components.hpprinter.managers.rest_api import RestAPIv2
 
 
@@ -124,3 +124,92 @@ async def test_terminate_closes_session(api):
     await api.terminate()
     session.close.assert_awaited_once()
     assert api._session is None
+
+
+@pytest.mark.asyncio
+async def test_reconnection_refreshes_secondary_endpoints_immediately(api):
+    api._is_online = True
+    api._raw_data["/counters"] = {"count": 42}
+    api._config_manager.get_update_interval.side_effect = (
+        lambda endpoint: 0 if endpoint == PRODUCT_STATUS_ENDPOINT else 3600
+    )
+    api._get_request = AsyncMock(side_effect=[None, {"online": True}, {"count": 43}])
+    api._get_devices_data = Mock(return_value=[])
+    api._extract_data = Mock()
+    from time import time
+    api._last_update["/counters"] = time()
+    try:
+        await api.update()
+        assert not api.is_online
+        assert api.raw_data[PRODUCT_STATUS_ENDPOINT] == PRODUCT_STATUS_OFFLINE_PAYLOAD
+        assert api.raw_data["/counters"] == {"count": 42}
+        assert api._get_request.await_count == 1
+
+        # Simulate expiration of the retry delay, without resetting endpoint intervals.
+        api._next_status_retry = 0
+        await api.update()
+        assert api.is_online
+        assert api.raw_data["/counters"] == {"count": 43}
+        assert [call.args[0] for call in api._get_request.await_args_list] == [
+            PRODUCT_STATUS_ENDPOINT, PRODUCT_STATUS_ENDPOINT, "/counters",
+        ]
+        assert api._status_failure_count == 0
+        assert api._failure_warning_handle is None
+    finally:
+        api._cancel_failure_warning()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("suspended_endpoint", [PRODUCT_STATUS_ENDPOINT, "/counters"])
+async def test_suspend_during_request_discards_response_and_stops_cycle(api, suspended_endpoint):
+    api._is_online = True
+    api._config_manager.endpoints = ["/counters", "/other"]
+    api._raw_data["/counters"] = {"count": 42}
+    api._get_devices_data = Mock(return_value=[])
+    api._extract_data = Mock()
+
+    async def request(endpoint):
+        if endpoint == suspended_endpoint:
+            api.suspend_polling()
+        return {"count": 99}
+
+    api._get_request = AsyncMock(side_effect=request)
+    await api.update()
+    assert not api.is_online
+    assert api._polling_suspended
+    assert api.raw_data[PRODUCT_STATUS_ENDPOINT] == PRODUCT_STATUS_OFFLINE_PAYLOAD
+    assert api.raw_data["/counters"] == {"count": 42}
+    expected = [PRODUCT_STATUS_ENDPOINT]
+    if suspended_endpoint == "/counters":
+        expected.append("/counters")
+    assert [call.args[0] for call in api._get_request.await_args_list] == expected
+    await api.update()
+    assert api._get_request.await_count == len(expected)
+
+    api.resume_polling()
+    assert not api._polling_suspended
+    assert not api._last_update
+    api._get_request = AsyncMock(return_value={"count": 43})
+    await api.update()
+    assert api.is_online
+    assert api.raw_data["/counters"] == {"count": 43}
+    assert api._get_request.await_count == 3
+
+
+@pytest.mark.asyncio
+async def test_failed_cache_save_is_retried(api, caplog):
+    api._cache_store = Mock(async_save=AsyncMock(side_effect=[OSError("disk unavailable"), None]))
+    api._raw_data["/counters"] = {"count": 42}
+    api._cache_dirty = True
+    api._last_successful_update = 1234
+    api._update_product_status_endpoint_data = AsyncMock(return_value=False)
+    api._get_devices_data = Mock(return_value=[])
+    api._extract_data = Mock()
+    await api.update()
+    assert api._cache_dirty
+    assert api.raw_data["/counters"] == {"count": 42}
+    assert "disk unavailable" in caplog.text
+    await api.update()
+    assert not api._cache_dirty
+    assert api._last_persisted_success == 1234
+    assert api._cache_store.async_save.await_count == 2
